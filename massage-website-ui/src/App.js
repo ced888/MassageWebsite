@@ -6,15 +6,14 @@ import './App.css';
 import AppNavBar from './components/header';
 import AppHero from './components/hero';
 import AppServices from './components/services';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+import AppDatePicker from './components/datepicker'
 
 
 function App() {
   return (
     
     <div className="App">
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
       <header id="header">
         <AppNavBar />
       </header>
@@ -24,9 +23,8 @@ function App() {
 
         <AppServices />
         
-        <DatePicker/>
+        <AppDatePicker/>
       </main>
-      </LocalizationProvider>
     </div>
   );
 }
