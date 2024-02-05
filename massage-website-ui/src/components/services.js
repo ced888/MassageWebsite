@@ -4,6 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
+import { DatePicker } from "@mui/x-date-pickers";
 
 const servicesData = [
     {
@@ -58,7 +59,7 @@ function servicesComponent(){
                                     <Card.Text>
                                     {services.description}
                                     </Card.Text>
-                                    <Button variant="primary">Go somewhere</Button>
+                                    <Button variant="primary">Book Now</Button>
                                 </Card.Body>
                                 </Card>
                                 </Col>
@@ -68,6 +69,7 @@ function servicesComponent(){
                 </Row>
             </Container>
         </section>
+        
     )
 }
 
