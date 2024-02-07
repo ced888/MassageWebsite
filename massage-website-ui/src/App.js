@@ -5,6 +5,7 @@ import './App.css';
 import AppNavBar from './components/header';
 import AppHero from './components/hero';
 import AppServices from './components/services';
+import Footer from './components/footer'
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
 
         <AppServices />
       </main>
-
+      <Footer />
     </div>
   );
 }
