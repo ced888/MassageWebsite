@@ -4,6 +4,7 @@ import ig from '../assets/img/instagram_logo.png';
 import fb from '../assets/img/facebook_logo.png';
 import reddit from '../assets/img/reddit_logo.png';
 
+
 const footer=()=>{
     return (
         <div className="footer">
