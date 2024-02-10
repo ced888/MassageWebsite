@@ -1,5 +1,9 @@
 # MassageWebsite
 
+## Dependencies for API
+
+npm install mssql
+
 ## Dependencies for UI
 
 react-bootstrap 2.10.0
