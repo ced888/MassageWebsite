@@ -4,11 +4,56 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var indexRouter = require('./routes/index.js');
+var usersRouter = require('./routes/users.js');
 
 var app = express();
 
+/*
+//adding SSMS stuff
+
+const sql = require("mssql");
+
+const config = {
+    server: "massagecapstone-server.database.windows.net",
+    port: 3301,
+    user: "massagecapstone-server-admin",
+    password: "CedLyn321",
+    database: "massagecapstone-database",
+
+    options: {
+        enableArithAbort: true,
+    },
+    connectionTimeout: 150000,
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000,
+    },
+};
+
+sql.on('error', err => {
+  console.log(err.message)
+})
+
+async function getDBCustomerAsyncFunction(){
+  try{
+      let pool = await sql.connect(config)
+      let result1 = await pool.request().query('select * from CustomerDB')
+      console.log(result1)
+      sql.close()
+  } catch (error) {
+      console.log(err.message);
+      sql.close();
+  }
+}
+//end of adding ssms
+
+//routes
+app.get('/', (req, res) => {
+  res.send('Hello NODE API!!')
+})
+*/
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -37,5 +82,13 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+/*
+app.listen(3001, ()=> {
+  console.log('Node API app is running on port 3001')
+})
+*/
+
+
 
 module.exports = app;
