@@ -1,26 +1,61 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var createError       = require('http-errors');
+var express           = require('express');
+var path              = require('path');
+var cookieParser      = require('cookie-parser');
+var logger            = require('morgan');
+var cors              = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var router = express.Router();
+const sql = require('./dbFiles/dboperation');
+Employee = require('./dbFiles/employee');
 
 var app = express();
+
+app.get('/api', function(req, res) {
+  console.log('called');
+  res.send({result: 'go away'})
+});
+
+app.get('/', (req, res) => {
+  res.send('Hello home!!')
+})
+
+app.get('/hello', (req, res) => {
+  res.send('Hello NODE API!!')
+})
+
+app.get('/testconnect', function(req, res, next){
+  sql.getdata();
+  res.render('index', { title: 'Expressdeeznuts' });
+});
+
+app.get('/employees', function (req, res, next){
+  sql.getEmployees().then((result) => {
+    res.json(result[0]);
+  })
+})
+
+//to test create employee function
+/*
+let why = new Employee(999, 'Why', 'Not', 'lol@gmail.com', '389748923', 'nothing', 'nowhere', '0');
+console.log(why);
+sql.createEmployees(why);
+*/
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+let client;
+let session;
+
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -37,5 +72,17 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+
+/*
+app.listen(3001, ()=> {
+  console.log('Node API app is running on port 3001')
+})
+*/
+
+//app.listen(API_PORT, () => console.log(`listening on port ${API_PORT}`))
+
+
 
 module.exports = app;
