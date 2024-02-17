@@ -12,7 +12,7 @@ async function getdata() {
     }
 }
 
-//currently set to get all employees in db
+//Select all Employees
 async function getEmployees(){
     try{
         let pool = await sql.connect(config);
@@ -23,13 +23,39 @@ async function getEmployees(){
     }
 }
 
+//Select all Practitioners
+async function getPractitioner(){
+    try{
+        let pool = await sql.connect(config);
+        let res = await pool.request().query("SELECT * FROM EmployeeDB where isPractitioner = 'True'");
+        return res.recordsets;
+    } catch(error){
+        console.log("erroror :" + error);
+    }
+}
+
 //not working yet
-async function getEmployee(EmployeeID){
+//edit: oh now it works if it takes the link/employees/id
+async function getEmployeeByID(EmployeeID){
     try{
         let pool = await sql.connect(config);
         let employee = await pool.request()
         .input('input_parameter', sql.Int, EmployeeID)
         .query("SELECT * FROM EmployeeDB where EmployeeID = @input_parameter");
+        return employee.recordsets;
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+//Query to get the Employees schedule by their ID
+async function getEmployeeScheduleByID(EmployeeID){
+    try{
+        let pool = await sql.connect(config);
+        let employee = await pool.request()
+        .input('input_parameter', sql.Int, EmployeeID)
+        .query("SELECT * FROM EmployeeDB E INNER JOIN ScheduleDay S ON E.EmployeeID = S.EmployeeID where E.EmployeeID = @input_parameter");
         return employee.recordsets;
     }
     catch(error){
@@ -55,7 +81,9 @@ async function createEmployees(Employee){
 
 module.exports = {
     getdata: getdata,
-    getEmployee:getEmployee,
+    getEmployeeByID:getEmployeeByID,
     getEmployees:getEmployees,
     createEmployees:createEmployees,
+    getEmployeeScheduleByID:getEmployeeScheduleByID,
+    getPractitioner:getPractitioner
 };

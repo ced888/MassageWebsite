@@ -7,7 +7,6 @@ var cors              = require('cors');
 
 var router = express.Router();
 const sql = require('./dbFiles/dboperation');
-Employee = require('./dbFiles/employee');
 
 var app = express();
 
@@ -33,6 +32,19 @@ app.get('/employees', function (req, res, next){
   sql.getEmployees().then((result) => {
     res.json(result[0]);
   })
+})
+
+app.get('/prac', function (req, res, next){
+  sql.getPractitioner().then((result)=> {
+    res.json(result[0]);
+  })
+})
+
+//trying to get employee by id
+app.get('/employees/:id', function (req, res,next) {
+  sql.getEmployeeScheduleByID(req.params.id)
+  .then(user=> res.json(user))
+  .catch(next);
 })
 
 //to test create employee function
