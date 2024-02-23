@@ -64,7 +64,7 @@ async function getEmployeeScheduleByID(EmployeeID){
 }
 
 
-//v2 of creating employee not working yet (only works by manually putting it, not post)
+//v2 of creating employee not working yet
 async function createEmployee(Employee){
     try{
         let pool = await sql.connect(config);
@@ -94,7 +94,6 @@ async function getBookings(){
     }
 }
 
-//works now
 async function createBooking(Booking){
     try{
         let pool = await sql.connect(config);
@@ -110,7 +109,6 @@ async function createBooking(Booking){
     }
 }
 
-//get all massage types
 async function getMassageType(){
     try{
         let pool = await sql.connect(config);
@@ -134,14 +132,13 @@ async function getMassagePrice(MassageTypeID){
     }
 }
 
-//get get the practitioner from the time slot
+//get the practitioner from the time slot
 //input is user and duration 
 //checks to see where working duration the booking time then check for conflicts
 async function getPracFromTime(Start, Duration){
     try{
         
         let pool = await sql.connect(config);
-
         const result = await pool.request()
         .query('exec GetAvailableEmployee "'+Start+'", '+Duration+'');
         return result.recordset;
