@@ -5,6 +5,8 @@ var cookieParser      = require('cookie-parser');
 var logger            = require('morgan');
 var cors              = require('cors');
 
+var paymentRoute = require("./routes/payment");
+
 var router = express.Router();
 const sql = require('./dbFiles/dboperation');
 //idk if i need the 2 below
@@ -13,8 +15,6 @@ const Booking = require('./dbFiles/booking');
 
 var app = express();
 
-let client;
-let session;
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -125,6 +125,7 @@ app.get('/bb', function (req, res, next){
   })
 })
 
+app.use("/payment", paymentRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

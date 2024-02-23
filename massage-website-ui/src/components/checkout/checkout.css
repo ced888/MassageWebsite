@@ -1,0 +1,16 @@
+.btn_pay button {
+    background-color: #635BFF;
+}
+  
+.btn_pay button {
+background: #635BFF;
+border-radius: 3px;
+color: white;
+border: 0;
+padding: 12px 16px;
+margin-top: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.2s ease;
+display: block;
+}
