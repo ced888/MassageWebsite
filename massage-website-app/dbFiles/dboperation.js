@@ -148,6 +148,23 @@ async function getPracFromTime(Start, Duration){
     }
 }
 
+//Get customer history
+//Input is CustomerID
+async function getCustomerHist(CustomerID){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('input1', sql.Int, CustomerID)
+        .query('Select * FROM BookingDB where CustomerID = @input1')
+        return result.recordsets;
+    } catch (error){
+        console.log(error);
+    }
+}
+
+
+
+
 
 module.exports = {
     getdata:getdata,
@@ -160,6 +177,6 @@ module.exports = {
     getBookings:getBookings,
     getMassageType:getMassageType,
     getMassagePrice:getMassagePrice,
-
+    getCustomerHist:getCustomerHist,
     getPracFromTime:getPracFromTime
 };

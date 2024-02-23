@@ -113,6 +113,14 @@ app.get('/getavailprac/:date/:duration', function (req, res, next){
   })
 })
 
+//Get all bookings of the customers history
+app.get('/customer/history/:id', function (req, res, next){
+  sql.getCustomerHist(req.params.id)
+  .then((result)=>{
+    res.json(result[0]);
+  })
+})
+
 app.use("/payment", paymentRoute);
 
 // catch 404 and forward to error handler
