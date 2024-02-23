@@ -5,6 +5,8 @@ var cookieParser      = require('cookie-parser');
 var logger            = require('morgan');
 var cors              = require('cors');
 
+var paymentRoute = require("./routes/payment");
+
 var router = express.Router();
 const sql = require('./dbFiles/dboperation');
 Employee = require('./dbFiles/employee');
@@ -56,6 +58,7 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use("/payment", paymentRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
