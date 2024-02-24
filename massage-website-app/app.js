@@ -117,7 +117,7 @@ app.get('/getavailprac/:date/:duration', function (req, res, next){
 app.get('/customer/history/:id', function (req, res, next){
   sql.getCustomerHist(req.params.id)
   .then((result)=>{
-    res.json(result[0]);
+    res.json(result);
   })
 })
 

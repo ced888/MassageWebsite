@@ -155,12 +155,15 @@ async function getCustomerHist(CustomerID){
         let pool = await sql.connect(config);
         let result = await pool.request()
         .input('input1', sql.Int, CustomerID)
-        .query('Select * FROM BookingDB where CustomerID = @input1')
-        return result.recordsets;
+        .query('Select C.FirstName, C.LastName, E.FirstName as EFirstName, E.LastName as ELastName, M.MassageType, B.StartDateTime, B.DurationInMins, B.PriceTotal FROM CustomerDB C INNER JOIN BookingDB B ON C.CustomerID = B.CustomerID INNER JOIN EmployeeDB E ON E.EmployeeID = B.EmployeeID INNER JOIN MassageTypeDB M ON B.MassageTypeID = M.MassageTypeID where C.CustomerID = @input1');
+        //.query('Select * FROM BookingDB where CustomerID = @input1');
+        return result.recordset;
     } catch (error){
         console.log(error);
     }
 }
+
+
 
 
 
