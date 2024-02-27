@@ -3,6 +3,7 @@ import {useEffect, useState} from 'react';
 
 import {Elements} from '@stripe/react-stripe-js';
 import CheckoutForm from './checkoutForm'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Payment(props) {
   const { stripePromise } = props;
@@ -17,14 +18,21 @@ function Payment(props) {
 
 
   return (
-    <>
+    <div className="container">
       <h2>Payment</h2>
-      {clientSecret && stripePromise && (
-        <Elements stripe={stripePromise} options={{ clientSecret, }}>
-          <CheckoutForm />
-        </Elements>
-      )}
-    </>
+      <div className="row">
+        <div className="col-lg">
+          Massage information here
+        </div>
+        <div className="col-sm">
+          {clientSecret && stripePromise && (
+            <Elements stripe={stripePromise} options={{ clientSecret, }}>
+              <CheckoutForm />
+            </Elements>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

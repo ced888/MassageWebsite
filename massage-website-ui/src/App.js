@@ -3,20 +3,16 @@ import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-
 import AppNavBar from './components/header';
-import AppHero from './components/hero';
-import AppServices from './components/services';
 import Footer from './components/footer';
-
-import AppDatePicker from './components/datepicker';
 
 import Payment from './components/checkout/payment';
 import Completion from './components/checkout/completion';
 
-
 import {loadStripe} from '@stripe/stripe-js';
 
+import BookingPage from './pages/booking';
+import Homepage from './pages/homepage';
 
 function App() {
   const [ stripePromise, setStripePromise ] = useState(null);
@@ -34,23 +30,20 @@ function App() {
       <header id="header">
         <AppNavBar />
       </header>
+    
+      <BrowserRouter>
+      <Routes>
+        <Route path='/' element={<Homepage />}/>
+        <Route path="/booking/:id" element={<BookingPage />} />
+        //change the path of the payment to /payment when in cart with a valid service
+        <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
+        <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
+      </Routes>
+      </BrowserRouter>
 
-      <main>
-        <AppHero />
-
-        <AppServices />
-        
-        <AppDatePicker/>
-
-        <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Payment stripePromise={stripePromise} />} />
-          <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
-        </Routes>
-        </BrowserRouter>
-
-      </main>
-      <Footer />
+      <footer>
+        <Footer/>
+      </footer>
     </div>
   );
 }
