@@ -16,7 +16,8 @@ async function getdata() {
 async function getEmployees(){
     try{
         let pool = await sql.connect(config);
-        let res = await pool.request().query("SELECT * FROM EmployeeDB");
+        let res = await pool.request()
+        .query("SELECT EmployeeID, FirstName, LastName, Email, PhoneNumber, isPractitioner FROM EmployeeDB");
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);
@@ -27,7 +28,8 @@ async function getEmployees(){
 async function getPractitioner(){
     try{
         let pool = await sql.connect(config);
-        let res = await pool.request().query("SELECT * FROM EmployeeDB where isPractitioner = 'True'");
+        let res = await pool.request()
+        .query("SELECT EmployeeID, FirstName, LastName, Email, PhoneNumber FROM EmployeeDB where isPractitioner = 'True'");
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);
@@ -41,7 +43,7 @@ async function getEmployeeByID(EmployeeID){
         let pool = await sql.connect(config);
         let employee = await pool.request()
         .input('input_parameter', sql.Int, EmployeeID)
-        .query("SELECT * FROM EmployeeDB where EmployeeID = @input_parameter");
+        .query("SELECT EmployeeID, FirstName, LastName, Email, PhoneNumber, isPractitioner FROM EmployeeDB where EmployeeID = @input_parameter");
         return employee.recordsets;
     }
     catch(error){
@@ -55,7 +57,7 @@ async function getEmployeeScheduleByID(EmployeeID){
         let pool = await sql.connect(config);
         let employee = await pool.request()
         .input('input_parameter', sql.Int, EmployeeID)
-        .query("SELECT * FROM EmployeeDB E INNER JOIN ScheduleDay S ON E.EmployeeID = S.EmployeeID where E.EmployeeID = @input_parameter");
+        .query("SELECT E.EmployeeID, E.FirstName, E.LastName, E.Email, E.PhoneNumber, E.isPractitioner, S.StartDateTime, S.EndDateTime FROM EmployeeDB E INNER JOIN ScheduleDay S ON E.EmployeeID = S.EmployeeID where E.EmployeeID = @input_parameter");
         return employee.recordsets;
     }
     catch(error){
@@ -112,7 +114,8 @@ async function createBooking(Booking){
 async function getMassageType(){
     try{
         let pool = await sql.connect(config);
-        let res = await pool.request().query("SELECT * FROM MassageTypeDB");
+        let res = await pool.request()
+        .query("SELECT MassageType, MassageDescription FROM MassageTypeDB");
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);
@@ -124,7 +127,7 @@ async function getMassagePrice(MassageTypeID){
         let pool = await sql.connect(config);
         let massagetype = await pool.request()
         .input('input_parameter', sql.Int, MassageTypeID)
-        .query("SELECT * FROM MassagePriceDB where MassageTypeID = @input_parameter");
+        .query("SELECT MT.MassageType, DurationInMin, Price FROM MassagePriceDB MP INNER JOIN MassageTypeDB MT ON MT.MassageTypeID = MP.MassageTypeID where MP.MassageTypeID = @input_parameter");
         return massagetype.recordsets;
     }
     catch(error){
@@ -148,22 +151,48 @@ async function getPracFromTime(Start, Duration){
     }
 }
 
-//Get customer history
+//Get customer bookings past and future
 //Input is CustomerID
-async function getCustomerHist(CustomerID){
+async function getCustomerBookings(CustomerID){
     try{
         let pool = await sql.connect(config);
         let result = await pool.request()
         .input('input1', sql.Int, CustomerID)
         .query('Select C.FirstName, C.LastName, E.FirstName as EFirstName, E.LastName as ELastName, M.MassageType, B.StartDateTime, B.DurationInMins, B.PriceTotal FROM CustomerDB C INNER JOIN BookingDB B ON C.CustomerID = B.CustomerID INNER JOIN EmployeeDB E ON E.EmployeeID = B.EmployeeID INNER JOIN MassageTypeDB M ON B.MassageTypeID = M.MassageTypeID where C.CustomerID = @input1');
-        //.query('Select * FROM BookingDB where CustomerID = @input1');
         return result.recordset;
     } catch (error){
         console.log(error);
     }
 }
 
+//Rescheduling a booking
+//input is booking id and new start date
+async function reschedule(BookingID, newStart){
+    try {
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputBooking', sql.Int, BookingID)
+        .input('inputNewStart',sql.SmallDateTime, newStart)
+        .query('UPDATE BookingDB SET StartDateTime = @inputNewStart, EndDateTime = DATEADD(MINUTE, DurationInMins, @inputNewStart) WHERE BookingID = @inputBooking');
+        return result.recordset;
+    } catch (error){
+        console.log(error);
+    }
+}
 
+//Delete a booking
+//Input is BookingID
+async function deleteBooking(BookingID){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('input1', sql.Int, BookingID)
+        .query('DELETE FROM BookingDB WHERE BookingID = @input1');
+        return result.recordset;
+    } catch(error){
+        console.log(error);
+    }
+}
 
 
 
@@ -173,13 +202,16 @@ module.exports = {
     getdata:getdata,
     getEmployeeByID:getEmployeeByID,
     getEmployees:getEmployees,
-    createEmployee:createEmployee,
     getEmployeeScheduleByID:getEmployeeScheduleByID,
     getPractitioner:getPractitioner,
+    createEmployee:createEmployee,
     createBooking:createBooking,
     getBookings:getBookings,
     getMassageType:getMassageType,
     getMassagePrice:getMassagePrice,
-    getCustomerHist:getCustomerHist,
-    getPracFromTime:getPracFromTime
+    getCustomerBookings:getCustomerBookings,
+    getPracFromTime:getPracFromTime,
+    deleteBooking:deleteBooking,
+
+    reschedule:reschedule
 };

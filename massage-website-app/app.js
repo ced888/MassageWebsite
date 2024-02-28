@@ -113,9 +113,25 @@ app.get('/getavailprac/:date/:duration', function (req, res, next){
   })
 })
 
-//Get all bookings of the customers history
-app.get('/customer/history/:id', function (req, res, next){
-  sql.getCustomerHist(req.params.id)
+//Get all bookings of the customers past, present, and future bookings
+app.get('/customer/bookings/:id', function (req, res, next){
+  sql.getCustomerBookings(req.params.id)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//Delete a booking by its id
+app.delete('/delbooking/:id', function (req, res, next){
+  sql.deleteBooking(req.params.id)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//Reschedule a booking with the id and new date
+app.put('/reschedule/:id/:date', function (req, res, next){
+  sql.reschedule(req.params.id, req.params.date)
   .then((result)=>{
     res.json(result);
   })
