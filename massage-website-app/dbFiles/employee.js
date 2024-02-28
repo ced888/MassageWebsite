@@ -1,4 +1,5 @@
 //apparently dont need this cuz we put it in front end
+//for testing purposes only
 class Employee{
     constructor(EmployeeID, FirstName, LastName, Email, PhoneNumber, PasswordHash, ImageURL, IsPractitioner){
         this.EmployeeID = EmployeeID;
