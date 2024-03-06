@@ -9,6 +9,7 @@ var paymentRoute = require("./routes/payment");
 
 var router = express.Router();
 const sql = require('./dbFiles/dboperation');
+const emailz = require('./dbFiles/email');
 
 var app = express();
 
@@ -72,6 +73,12 @@ app.get('/bookings', function (req,res,next){
   })
 })
 
+app.get('/bookings/:id', function (req,res,next){
+  sql.getBooking(req.params.id)
+  .then(user=> res.json(user))
+  .catch(next);
+})
+
 //Create booking
 //Need booking details as input
 app.post('/createbooking', function (req, res, next) {
@@ -83,10 +90,34 @@ app.post('/createbooking', function (req, res, next) {
 //Create employee
 //Need employee details as input
 app.post('/createemployee', function (req, res, next) {
-  sql.createEmployee(req.body)
+  sql.createEmployee(req.body.Employee, req.body.User)
   .then(() => res.json({message: 'Employee Created'}))
   .catch(next);
 })
+
+app.post('/createemployeeold', function (req, res, next) {
+  sql.createEmployeeOLD(req.body)
+  .then(() => res.json({message: 'Employee Created'}))
+  .catch(next);
+})
+
+//Create customer
+app.post('/createcustomer', function (req, res, next) {
+  sql.createCustomer(req.body.Customer, req.body.User)
+  .then(() => res.json({message: 'Customer Created'}))
+  .catch(next);
+})
+
+/*
+//login
+// not working yet
+app.get('/login', (req,res) => {
+  console.log(req.body);
+  const user = sql.login(req.body)
+  .then(() => res.json({message: 'Login'}))
+  .catch(next);
+})
+*/
 
 //Get list of all massage types
 app.get('/massagetype', function (req,res,next){
@@ -136,6 +167,24 @@ app.put('/reschedule/:id/:date', function (req, res, next){
     res.json(result);
   })
 })
+
+//update the current status of the booking whether its done or called or in progress
+app.put('/bookingstatus/:id/:status', function (req, res, next){
+  sql.updateStatus(req.params.id, req.params.status)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//update the booking to display whether its paid or not
+app.put('/bookingpaidstatus/:id/:paidstatus', function (req, res, next){
+  sql.updatePAID(req.params.id, req.params.paidstatus)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//emailz().catch(console.error);
 
 app.use("/payment", paymentRoute);
 

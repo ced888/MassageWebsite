@@ -66,12 +66,70 @@ async function getEmployeeScheduleByID(EmployeeID){
 }
 
 
-//v2 of creating employee not working yet
-async function createEmployee(Employee){
+//v2 of creating employee 
+async function createEmployee(Employee, User){
+    try{
+        console.log(Employee);
+        console.log(User);
+        let pool = await sql.connect(config);
+        let employees = await pool.request()
+        .query(`INSERT INTO EmployeeDB (FirstName, LastName, Email, PhoneNumber, ImageURL, IsPractitioner) VALUES
+        (
+        '${Employee.FirstName}', 
+        '${Employee.LastName}',
+        '${Employee.Email}', 
+        '${Employee.PhoneNumber}',
+        '${Employee.ImageURL}',
+        ${Employee.IsPractitioner}
+        )`)
+
+        //let pool2 = await sql.connect(config);
+        let user = await pool.request()
+        .query(`INSERT INTO UserDB VALUES
+        (
+        '${User.Email}',
+        '${User.PasswordHash}', 
+        ${User.IsAdmin}
+        )`)
+    } catch(error){
+        console.log("erroror111 from creating:" + error);
+    }
+}
+
+//v2 of creating employee 
+async function createCustomer(Customer, User){
+    try{
+        console.log(Customer);
+        console.log(User);
+        let pool = await sql.connect(config);
+        let customer = await pool.request()
+        .query(`INSERT INTO CustomerDB (FirstName, LastName, Email, PhoneNumber) VALUES
+        (
+        '${Customer.FirstName}', 
+        '${Customer.LastName}',
+        '${Customer.Email}', 
+        '${Customer.PhoneNumber}'
+        )`)
+
+        //let pool2 = await sql.connect(config);
+        let user = await pool.request()
+        .query(`INSERT INTO UserDB VALUES
+        (
+        '${User.Email}',
+        '${User.PasswordHash}', 
+        ${User.IsAdmin}
+        )`)
+    } catch(error){
+        console.log("erroror111 from creating:" + error);
+    }
+}
+
+//old version of creating employee back when password was in employee table and userDB wasnt made yet
+async function createEmployeeOLD(Employee){
     try{
         let pool = await sql.connect(config);
         let employees = await pool.request()
-        .query(`INSERT INTO EmployeeDB VALUES
+        .query(`INSERT INTO EmployeeDB (FirstName, LastName, Email, PhoneNumber, PasswordHash, ImageURL, IsPractitioner) VALUES
         (
         '${Employee.FirstName}', 
         '${Employee.LastName}',
@@ -82,10 +140,31 @@ async function createEmployee(Employee){
         ${Employee.IsPractitioner}
         )`)
     } catch(error){
-        console.log("erroror111 :" + error);
+        console.log("erroror111 from creating:" + error);
     }
 }
 
+
+/*
+//function to try to log in
+// not working yet
+async function login(Login){
+    try{
+        let pool = await sql.connect(config);
+
+        console.log(Login);
+        let user = await pool.request()
+        .input('inputEmail', sql.NVarChar, Login.Email)
+        .input('inputPassHash', sql.NVarChar, Login.PasswordHash)
+        .query('SELECT * FROM UserDB WHERE Email = @inputEmail and PasswordHash = @inputPassHash');
+        return user.recordset;
+    } catch(error){
+        console.log("erroror :" + error);
+    }
+}
+*/
+
+//gets all the bookings that exist
 async function getBookings(){
     try{
         let pool = await sql.connect(config);
@@ -96,16 +175,33 @@ async function getBookings(){
     }
 }
 
+//get the singular booking from id
+async function getBooking(BookingID){
+    try{
+        let pool = await sql.connect(config);
+        let res = await pool.request()
+        .input('inputID', sql.Int, BookingID)
+        .query("SELECT * FROM BookingDB WHERE BookingID = @inputID");
+        return res.recordset;
+    } catch(error){
+        console.log("error:" + error);
+    }
+}
+
+//creates the booking into the database
 async function createBooking(Booking){
     try{
         let pool = await sql.connect(config);
         let bookings = await pool.request()
-        .query(`INSERT INTO BookingDB VALUES
+        .query(`INSERT INTO BookingDB OUTPUT INSERTED.BookingID VALUES
         (${Booking.CustomerID}, ${Booking.EmployeeID},
         ${Booking.MassageTypeID}, '${Booking.DateCreated}',
         ${Booking.DurationInMins}, '${Booking.StartDateTime}',
         '${Booking.EndDateTime}', ${Booking.PriceTotal},
-        '${Booking.Status}', ${Booking.IsPaid})`)
+        '${Booking.Status}', ${Booking.IsPaid})`);
+        let pk = bookings.recordset[0].BookingID;
+        console.log(pk);
+        return pk;
     } catch(error){
         console.log("erroror :" + error);
     }
@@ -194,24 +290,66 @@ async function deleteBooking(BookingID){
     }
 }
 
+//update the paid status of the booking
+//input is bookingID and whether it is paid off or not (i.e True or False)
+async function updatePAID(BookingID, PaidStatus){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputID', sql.Int, BookingID)
+        .input('inputPStatus', sql.Bit, PaidStatus)
+        .query('UPDATE BookingDB SET IsPaid = @inputPStatus WHERE BookingID = @inputID');
+        return result.recordset;
+    } catch (error){
+        console.log(error);
+    }
+}
+
+//update the status of the booking
+//input is bookingID and status (i.e. in progress or done or cancelled)
+async function updateStatus(BookingID, Status){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputID', sql.Int, BookingID)
+        .input('inputStatus', sql.NVarChar, Status)
+        .query('UPDATE BookingDB SET Status = @inputStatus WHERE BookingID = @inputID');
+        return result.recordset;
+    } catch (error){
+        console.log(error);
+    }
+}
+
 
 
 
 
 module.exports = {
     getdata:getdata,
+
     getEmployeeByID:getEmployeeByID,
     getEmployees:getEmployees,
     getEmployeeScheduleByID:getEmployeeScheduleByID,
     getPractitioner:getPractitioner,
     createEmployee:createEmployee,
+
     createBooking:createBooking,
     getBookings:getBookings,
+    getCustomerBookings:getCustomerBookings,
+    getBooking:getBooking,
+
     getMassageType:getMassageType,
     getMassagePrice:getMassagePrice,
-    getCustomerBookings:getCustomerBookings,
+
     getPracFromTime:getPracFromTime,
     deleteBooking:deleteBooking,
 
-    reschedule:reschedule
+    reschedule:reschedule,
+
+    updatePAID:updatePAID,
+    updateStatus:updateStatus,
+
+    createEmployeeOLD:createEmployeeOLD,
+    createCustomer:createCustomer
+    //login:login
 };
