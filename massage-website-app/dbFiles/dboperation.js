@@ -145,24 +145,24 @@ async function createEmployeeOLD(Employee){
 }
 
 
-/*
+
 //function to try to log in
 // not working yet
 async function login(Login){
     try{
         let pool = await sql.connect(config);
 
-        console.log(Login);
+        console.log(Login.Email);
         let user = await pool.request()
         .input('inputEmail', sql.NVarChar, Login.Email)
         .input('inputPassHash', sql.NVarChar, Login.PasswordHash)
         .query('SELECT * FROM UserDB WHERE Email = @inputEmail and PasswordHash = @inputPassHash');
         return user.recordset;
     } catch(error){
-        console.log("erroror :" + error);
+        console.log("login error:" + error);
     }
 }
-*/
+
 
 //gets all the bookings that exist
 async function getBookings(){
@@ -350,6 +350,6 @@ module.exports = {
     updateStatus:updateStatus,
 
     createEmployeeOLD:createEmployeeOLD,
-    createCustomer:createCustomer
-    //login:login
+    createCustomer:createCustomer,
+    login:login
 };

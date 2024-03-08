@@ -4,6 +4,8 @@ var path              = require('path');
 var cookieParser      = require('cookie-parser');
 var logger            = require('morgan');
 var cors              = require('cors');
+var session           = require('express-session');
+var bcrypt            = require('bcrypt');
 
 var paymentRoute = require("./routes/payment");
 
@@ -12,14 +14,27 @@ const sql = require('./dbFiles/dboperation');
 const emailz = require('./dbFiles/email');
 
 var app = express();
+/*
+const TWO_HOURS = 1000 * 60 * 60 * 2
 
-
+const {
+  SESS_LifeTime = TWO_HOURS
+} = process.env
+*/
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+/*
+app.use(session({
+  cookie: {
+    maxAge: SESS_LifeTime
+  }
+}))
+*/
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -118,6 +133,27 @@ app.get('/login', (req,res) => {
   .catch(next);
 })
 */
+/*
+const test = [{ 
+  "Email":"test21@gmail.com",
+  "PasswordHash":"1a2a3atest21Q"
+}]
+
+const test2 = sql.login(test);
+//console.log(test2);
+*/
+app.post('/login', function (req,res,next){
+  console.log(req.body);
+  const user = sql.login(req.body)
+  .then(user=> {
+    if (user.length > 0){
+      return res.json("Success")
+    } else {
+      return res.json("Fail")
+    }
+  })
+  .catch(next);
+})
 
 //Get list of all massage types
 app.get('/massagetype', function (req,res,next){
