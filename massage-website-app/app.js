@@ -118,36 +118,32 @@ app.post('/createemployeeold', function (req, res, next) {
 
 //Create customer
 app.post('/createcustomer', function (req, res, next) {
+  console.log(req.body.Customer);
+  console.log(req.body.User);
+
+  /*
+  req.body.User.PasswordHash = sql.hashPassword(req.body.User.PasswordHash)
+  .then(() =>   sql.createCustomer(req.body.Customer, req.body.User)).catch
+  console.log(req.body.User.PasswordHash);
+  console.log(req.body.User)
+*/
   sql.createCustomer(req.body.Customer, req.body.User)
   .then(() => res.json({message: 'Customer Created'}))
   .catch(next);
 })
 
-/*
-//login
-// not working yet
-app.get('/login', (req,res) => {
-  console.log(req.body);
-  const user = sql.login(req.body)
-  .then(() => res.json({message: 'Login'}))
-  .catch(next);
-})
-*/
-/*
-const test = [{ 
-  "Email":"test21@gmail.com",
-  "PasswordHash":"1a2a3atest21Q"
-}]
-
-const test2 = sql.login(test);
-//console.log(test2);
-*/
+//function to log in
 app.post('/login', function (req,res,next){
   console.log(req.body);
   const user = sql.login(req.body)
-  .then(user=> {
+  .then(async user=> {
     if (user.length > 0){
-      return res.json("Success")
+      const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
+      if (isValid === true){
+        return res.json("Success")
+      } else{
+        return res.json("Fail")
+      }
     } else {
       return res.json("Fail")
     }

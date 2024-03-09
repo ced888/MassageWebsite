@@ -34,19 +34,19 @@ function Signup() {
     const[errors2, setErrors2] = useState({});
 
     const handleInput = (event) => {
-        setCustomer(prev => ({...prev, [event.target.name]: [event.target.value]}))
+        setCustomer(prev => ({...prev, [event.target.name]: event.target.value}))
     };
     const handleCheck = (event) => {
-        setCustomer(prev => ({...prev, [event.target.name]: [event.target.checked ? 1 : 0]}))
+        setCustomer(prev => ({...prev, [event.target.name]: event.target.checked ? 1 : 0}))
     };
 
     const handleInput2 = (event) => {
-        setUsers(prev => ({...prev, [event.target.name]: [event.target.value]}))
+        setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
     };
 
     const handleBoth = (event) => {
-        setCustomer(prev => ({...prev, [event.target.name]: [event.target.value]}))
-        setUsers(prev => ({...prev, [event.target.name]: [event.target.value]}))
+        setCustomer(prev => ({...prev, [event.target.name]: event.target.value}))
+        setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
     };
 
     

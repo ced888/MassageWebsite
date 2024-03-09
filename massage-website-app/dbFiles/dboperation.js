@@ -1,5 +1,6 @@
-var config = require('./dbconfig');
-const sql = require('mssql');
+var config            = require('./dbconfig');
+const sql             = require('mssql');
+var bcrypt            = require('bcrypt');
 
 
 //function to see if app is connected to db
@@ -101,6 +102,10 @@ async function createCustomer(Customer, User){
     try{
         console.log(Customer);
         console.log(User);
+        console.log(User.PasswordHash);
+        User.PasswordHash = await bcrypt.hash(User.PasswordHash,10);
+        console.log(User.PasswordHash);
+
         let pool = await sql.connect(config);
         let customer = await pool.request()
         .query(`INSERT INTO CustomerDB (FirstName, LastName, Email, PhoneNumber) VALUES
@@ -147,7 +152,6 @@ async function createEmployeeOLD(Employee){
 
 
 //function to try to log in
-// not working yet
 async function login(Login){
     try{
         let pool = await sql.connect(config);
@@ -155,14 +159,12 @@ async function login(Login){
         console.log(Login.Email);
         let user = await pool.request()
         .input('inputEmail', sql.NVarChar, Login.Email)
-        .input('inputPassHash', sql.NVarChar, Login.PasswordHash)
-        .query('SELECT * FROM UserDB WHERE Email = @inputEmail and PasswordHash = @inputPassHash');
+        .query('SELECT * FROM UserDB WHERE Email = @inputEmail');
         return user.recordset;
     } catch(error){
         console.log("login error:" + error);
     }
 }
-
 
 //gets all the bookings that exist
 async function getBookings(){
@@ -320,6 +322,15 @@ async function updateStatus(BookingID, Status){
     }
 }
 
+async function hashPassword(Password){
+    try{
+        const hash = await bcrypt.hash(Password, 10);
+        console.log(hash);
+        return hash;
+    } catch (error){
+        console.log(error);
+    }
+}
 
 
 
@@ -351,5 +362,6 @@ module.exports = {
 
     createEmployeeOLD:createEmployeeOLD,
     createCustomer:createCustomer,
-    login:login
+    login:login,
+    hashPassword:hashPassword
 };
