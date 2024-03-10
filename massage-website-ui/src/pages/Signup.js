@@ -9,9 +9,17 @@ import axios from 'axios';
 function Signup() {
 
     //to do:
-    //hash the password
     //prevent duplicates
     //fix signup moving to log in page when unsucessful signup
+
+    //suppose to check if there is a user already logged in then redirect
+    
+    /*
+    axios.get('http://localhost:3000/getcurrentuser').then(res => {
+        console.log(res.data);
+    })
+    .catch(err => console.log(err));
+    */
 
     const [Customer, setCustomer] = useState({
         FirstName: '',

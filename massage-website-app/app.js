@@ -3,37 +3,63 @@ var express           = require('express');
 var path              = require('path');
 var cookieParser      = require('cookie-parser');
 var logger            = require('morgan');
-var cors              = require('cors');
-var session           = require('express-session');
-var bcrypt            = require('bcrypt');
 
 var paymentRoute = require("./routes/payment");
 
+var cors              = require('cors');
+var bcrypt            = require('bcrypt');
+
+var session           = require('express-session');
+//del below if it doesnt work (used to store the users login into a table in the database)
+//var config          = require('./dbFiles/dbconfig');
+//var MssqlStore      = require('mssql-session-store')(session);
+
 var router = express.Router();
+
 const sql = require('./dbFiles/dboperation');
 const emailz = require('./dbFiles/email');
 
 var app = express();
-/*
-const TWO_HOURS = 1000 * 60 * 60 * 2
 
-const {
-  SESS_LifeTime = TWO_HOURS
-} = process.env
-*/
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+const TWELVE_HOURS = 1000 * 60 * 60 * 12
+const testtime = 1000 * 60
+
+const {
+  PORT = 3000,
+  NODE_env = 'development',
+  SESS_NAME = 'sid',
+  SESS_SECRET = 'XD?XD?!?',
+  SESS_LifeTime = TWELVE_HOURS
+} = process.env
+
+const IN_PROD  = NODE_env === 'production'
 /*
+var options = {
+  connection: config,
+}
+*/
+
 app.use(session({
+  name: SESS_NAME,
+  resave: false,
+  saveUninitialized: false,
+  secret: SESS_SECRET,
+  //store: new MssqlStore(options),
   cookie: {
-    maxAge: SESS_LifeTime
+    maxAge: SESS_LifeTime,
+    sameSite: true,
+    secure:IN_PROD
   }
 }))
-*/
+
 
 
 // view engine setup
@@ -140,6 +166,8 @@ app.post('/login', function (req,res,next){
     if (user.length > 0){
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
+        console.log(user[0].UserID);
+        req.session.userID = user[0].UserID
         return res.json("Success")
       } else{
         return res.json("Fail")
@@ -150,6 +178,38 @@ app.post('/login', function (req,res,next){
   })
   .catch(next);
 })
+
+app.post('/logout', (req, res) =>{
+  req.session.destroy(err =>{
+    if (err) {
+      return res.json("Fail")
+    }
+    res.clearCookie(SESS_NAME);
+    return res.json("Success")
+
+  })
+})
+
+app.get('/getcurrentuser', (req, res) =>{
+  const userID = req.session.userID
+  console.log(req.session.userID)
+  res.status(200).send(`User ID: ${userID}`);
+})
+
+  
+
+
+app.get('/', (req, res) =>{
+  const {userID} = req.session
+})
+
+const redirectHome = (req, res, next) =>{
+  if (req.session.userID) {
+    res.redirect('/')
+  } else {
+    next()
+  }
+}
 
 //Get list of all massage types
 app.get('/massagetype', function (req,res,next){
