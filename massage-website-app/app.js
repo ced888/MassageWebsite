@@ -3,15 +3,23 @@ var express           = require('express');
 var path              = require('path');
 var cookieParser      = require('cookie-parser');
 var logger            = require('morgan');
-var cors              = require('cors');
 
 var paymentRoute = require("./routes/payment");
 
+var cors              = require('cors');
+var bcrypt            = require('bcrypt');
+
+var session           = require('express-session');
+//del below if it doesnt work (used to store the users login into a table in the database)
+//var config          = require('./dbFiles/dbconfig');
+//var MssqlStore      = require('mssql-session-store')(session);
+
 var router = express.Router();
+
 const sql = require('./dbFiles/dboperation');
+const emailz = require('./dbFiles/email');
 
 var app = express();
-
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -19,6 +27,40 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
+
+const TWELVE_HOURS = 1000 * 60 * 60 * 12
+const testtime = 1000 * 60
+
+const {
+  PORT = 3000,
+  NODE_env = 'development',
+  SESS_NAME = 'sid',
+  SESS_SECRET = 'XD?XD?!?',
+  SESS_LifeTime = TWELVE_HOURS
+} = process.env
+
+const IN_PROD  = NODE_env === 'production'
+/*
+var options = {
+  connection: config,
+}
+*/
+
+app.use(session({
+  name: SESS_NAME,
+  resave: false,
+  saveUninitialized: false,
+  secret: SESS_SECRET,
+  //store: new MssqlStore(options),
+  cookie: {
+    maxAge: SESS_LifeTime,
+    sameSite: true,
+    secure:IN_PROD
+  }
+}))
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -72,6 +114,12 @@ app.get('/bookings', function (req,res,next){
   })
 })
 
+app.get('/bookings/:id', function (req,res,next){
+  sql.getBooking(req.params.id)
+  .then(user=> res.json(user))
+  .catch(next);
+})
+
 //Create booking
 //Need booking details as input
 app.post('/createbooking', function (req, res, next) {
@@ -83,10 +131,85 @@ app.post('/createbooking', function (req, res, next) {
 //Create employee
 //Need employee details as input
 app.post('/createemployee', function (req, res, next) {
-  sql.createEmployee(req.body)
+  sql.createEmployee(req.body.Employee, req.body.User)
   .then(() => res.json({message: 'Employee Created'}))
   .catch(next);
 })
+
+app.post('/createemployeeold', function (req, res, next) {
+  sql.createEmployeeOLD(req.body)
+  .then(() => res.json({message: 'Employee Created'}))
+  .catch(next);
+})
+
+//Create customer
+app.post('/createcustomer', function (req, res, next) {
+  console.log(req.body.Customer);
+  console.log(req.body.User);
+
+  /*
+  req.body.User.PasswordHash = sql.hashPassword(req.body.User.PasswordHash)
+  .then(() =>   sql.createCustomer(req.body.Customer, req.body.User)).catch
+  console.log(req.body.User.PasswordHash);
+  console.log(req.body.User)
+*/
+  sql.createCustomer(req.body.Customer, req.body.User)
+  .then(() => res.json({message: 'Customer Created'}))
+  .catch(next);
+})
+
+//function to log in
+app.post('/login', function (req,res,next){
+  console.log(req.body);
+  const user = sql.login(req.body)
+  .then(async user=> {
+    if (user.length > 0){
+      const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
+      if (isValid === true){
+        console.log(user[0].UserID);
+        req.session.userID = user[0].UserID
+        return res.json("Success")
+      } else{
+        return res.json("Fail")
+      }
+    } else {
+      return res.json("Fail")
+    }
+  })
+  .catch(next);
+})
+
+app.post('/logout', (req, res) =>{
+  req.session.destroy(err =>{
+    if (err) {
+      return res.json("Fail")
+    }
+    res.clearCookie(SESS_NAME);
+    return res.json("Success")
+
+  })
+})
+
+app.get('/getcurrentuser', (req, res) =>{
+  const userID = req.session.userID
+  console.log(req.session.userID)
+  res.status(200).send(`User ID: ${userID}`);
+})
+
+  
+
+
+app.get('/', (req, res) =>{
+  const {userID} = req.session
+})
+
+const redirectHome = (req, res, next) =>{
+  if (req.session.userID) {
+    res.redirect('/')
+  } else {
+    next()
+  }
+}
 
 //Get list of all massage types
 app.get('/massagetype', function (req,res,next){
@@ -136,6 +259,24 @@ app.put('/reschedule/:id/:date', function (req, res, next){
     res.json(result);
   })
 })
+
+//update the current status of the booking whether its done or called or in progress
+app.put('/bookingstatus/:id/:status', function (req, res, next){
+  sql.updateStatus(req.params.id, req.params.status)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//update the booking to display whether its paid or not
+app.put('/bookingpaidstatus/:id/:paidstatus', function (req, res, next){
+  sql.updatePAID(req.params.id, req.params.paidstatus)
+  .then((result)=>{
+    res.json(result);
+  })
+})
+
+//emailz().catch(console.error);
 
 app.use("/payment", paymentRoute);
 

@@ -14,6 +14,9 @@ import {loadStripe} from '@stripe/stripe-js';
 import BookingPage from './pages/booking';
 import Homepage from './pages/homepage';
 
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
 function App() {
   const [ stripePromise, setStripePromise ] = useState(null);
 
@@ -38,6 +41,8 @@ function App() {
         //change the path of the payment to /payment when in cart with a valid service
         <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
         <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
+        <Route path="/login" element = {<Login />}/>
+        <Route path="/signup" element = {<Signup />}/>
       </Routes>
       </BrowserRouter>
 
