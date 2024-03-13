@@ -1,29 +1,42 @@
-import React from "react";
+import React, {useEffect, useState, useReducer} from "react";
 import Avatar from '@mui/material/Avatar';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/material/Typography';
-import { Container, TableRow } from "@mui/material";
-
+import { Button } from "@mui/material";
 
 //Fetch available practitioners here
 
-function PractitionerComponent({onChange}){
+function PractitionerComponent({onChange, duration, sel_date, time}){
+    const [prac, setPracs] = useState([]);
+    sel_date = sel_date.format('YYYY-MM-DD');
+    console.log("/getavailprac/" + sel_date +" " + time + ":00/" + duration);
 
+    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    useEffect(() => {
+        async function fetchData(){
+            //fetch("/getavailprac/" + sel_date +" " + time + ":00/" + duration)
+            const res = await fetch(`/getavailprac/${sel_date} ${time}:00/${duration}`);
+            res
+            .json()
+            .then(res => {setPracs(res); console.log(res)})
+            .catch(err => console.log("Error", err));
+        }
+        fetchData();
+    },[ignored]);
+    console.log(prac);
+    // if (prac.length == 0) return <h1>No Practitioners for this timeslot</h1>
+    
     const handleChanges = (val) => {
         console.log(val.target.value);
     };
-
-    const practitioners = [
-        {name:"Erin", id:"1"},
-        {name:"Aaron", id:"2"},
-        {name:"Marissa", id:"3"}
-    ];
-
+    
     return (
+    <>
+    <Button onClick={forceUpdate}>Refresh</Button>
     <RadioGroup
-        overlay
+    //overlay
         row
         name="member"
         orientation="horizontal"
@@ -33,10 +46,10 @@ function PractitionerComponent({onChange}){
         //onChange={handleChanges}
         onChange={onChange}
       >
-        {practitioners.map((prac) => (
+        {prac.map((prac) => (
             <Sheet
                 component="label"
-                key={prac.id}
+                key={prac.EmployeeID}
                 variant="outlined"
                 sx={{
                 p: 2,
@@ -49,20 +62,21 @@ function PractitionerComponent({onChange}){
                 }}
             >
                 <Radio
-                value={`${prac.id}`}
+                value={`${prac.EmployeeID}`}
                 variant="soft"
                 sx={{
                     mb: 2,
                 }}
                 />
-                <Avatar alt={`Practitioner ${prac.id}`} src={require(`../../assets/img/profile/practitioner-${prac.id}.jpg`)} sx={{ height: 100, width:100 }}/>
+                <Avatar alt={`Practitioner ${prac.EmployeeID}`} src={require(`../../assets/img/profile/practitioner-${prac.EmployeeID}.jpg`)} sx={{ height: 100, width:100 }}/>
                 <Typography level="body-sm" sx={{mt:1}}>
-                    Practitioner {prac.name}
+                    Practitioner {prac.FirstName} {prac.LastName}
                 </Typography>
             </Sheet>
             ))}
 
       </RadioGroup>
+      </>
     )
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import AppDatePicker from '../components/booking/datepicker';
 import TimeslotComponent from '../components/booking/timeslot';
 import PractitionerComponent from "../components/booking/practioner";
@@ -14,8 +14,21 @@ function BookingPage(){
     const params = useParams();
     const [selectedDuration, setDuration] = useState(90);
     const [selectedDate, setDate] = useState(dayjs(Date()));
-    const [selectedTime, setTime] = useState();
+    const [selectedTime, setTime] = useState('9:00');
     const [selectedPrac, setPrac] = useState();
+
+    // const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+    // useEffect((selectedDate, selectedTime, selectedDuration) => {
+    //     async function fetchData(){
+    //         //fetch("/getavailprac/" + sel_date +" " + time + ":00/" + duration)
+    //         await fetch(`/getavailprac/${selectedDate} ${time}:00/${selectedDuration}`)
+            
+    //         .then(res => console.log(res))
+    //         .catch(err => console.log("Error", err));
+    //     }
+    //     fetchData();
+    //     console.log("fetch called")
+    // },[ignored]);
 
     function handleDurationSelect(duration_val){
         console.log(duration_val.target.value)
@@ -30,6 +43,8 @@ function BookingPage(){
         // Handle the selected hour
         console.log(`Hour ${selectedHour} selected`);
         setTime(selectedHour);
+
+        // forceUpdate();
     };
     
     function handlePracSelect(selectedPracId){
@@ -67,7 +82,10 @@ function BookingPage(){
             onHourSelect={handleHourSelect}/>
             
             <PractitionerComponent 
-            onChange={handlePracSelect}/>
+            onChange={handlePracSelect}
+            duration={selectedDuration}
+            sel_date={selectedDate}
+            time={selectedTime} />
             
             <div>
             Selected duration is {selectedDuration} <br></br>

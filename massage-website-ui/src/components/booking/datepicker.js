@@ -98,6 +98,7 @@ function DatepickerComponent({sel_date, onChange}){
                 loading={isLoading}
                 onMonthChange={handleMonthChange}
                 renderLoading={() => <DayCalendarSkeleton />}
+                format="YYYY-MM-DD"
                 slots={{
                 day: ServerDay,
                 }}
