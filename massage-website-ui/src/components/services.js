@@ -1,44 +1,29 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
 
-const servicesData = [
-    {
-      id: 6,
-      image: require("../assets/img/services-1.jpg"),
-      title: 'Swedish Massage',
-      description: 'A gentle and relaxing full-body massage that uses long strokes, kneading, and circular movements to improve circulation and promote overall relaxation.'      
-    },
-    {
-      id: 7,
-      image: require("../assets/img/services-1.jpg"),
-      title: 'Deep Tissue Massage',
-      description: 'Targets deeper layers of muscles and connective tissue to release chronic tension. This type of massage is often recommended for individuals with muscle injuries or chronic pain.'
-    },
-    {
-      id: 8,
-      image: require("../assets/img/services-1.jpg"),
-      title: 'Sports Massage',
-      description: 'Geared towards athletes, this massage focuses on preventing and treating sports-related injuries. It may involve stretching, compression, and other techniques to enhance athletic performance and aid in recovery.'
-    },
-    {
-      id: 9,
-      image: require("../assets/img/services-1.jpg"),
-      title: 'Chair Massage',
-      description: 'A shorter, seated massage typically performed in a specially designed chair. This type of massage is convenient for individuals who may not have the time for a full-length session.'
-    },
-    {
-      id: 10,
-      image: require("../assets/img/services-1.jpg"),
-      title: 'Cupping massage',
-      description: 'a therapeutic method combining cups with massage techniques, is designed to benefit patients by promoting relaxation, relieving muscle tension, and addressing specific concerns. It create suction on the skin, aiding in increased blood circulation and the release of muscle tension'
+function ServicesComponent(){
+  const [massageServices, setServices] = useState([]);
+  useEffect(() => {
+    async function fetchData(){
+      
+        const res = await fetch(`/massagetype/`);
+        res
+        .json()
+        .then(res => setServices(res))
+        .catch(err => console.log("Error", err));
+        
+        return res;
     }
-  ]
+    fetchData();
+    //Need to get image url to replace services
+    console.log(massageServices);
+  },[]);
 
-function servicesComponent(){
+
     return(
         <section id="services" className="block services-block">
             <Container fluid>
@@ -47,18 +32,18 @@ function servicesComponent(){
                 </div>
             
                 <Row>
-                    {
-                        servicesData.map( services => {
+                    { 
+                      massageServices.map(services=> {
                             return(
-                                <Col>
-                                <Card style={{ width: '18rem' }}>
-                                <Card.Img variant="top" src={services.image} />
+                                <Col key={services.MassageTypeID}>
+                                <Card style={{ width: '18rem' }} key={services.MassageTypeID}>
+                                <Card.Img variant="top" src={require("../assets/img/services-1.jpg")} />
                                 <Card.Body>
-                                    <Card.Title>{services.title}</Card.Title>
+                                    <Card.Title>{services.MassageType}</Card.Title>
                                     <Card.Text>
-                                    {services.description}
+                                    {services.MassageDescription}
                                     </Card.Text>
-                                    <Button variant="primary" href={"/booking/" + services.id}>Book Now</Button>
+                                    <Button variant="primary" href={"/booking/" + services.MassageType}>Book Now</Button>
                                 </Card.Body>
                                 </Card>
                                 </Col>
@@ -72,4 +57,4 @@ function servicesComponent(){
     )
 }
 
-export default servicesComponent;
+export default ServicesComponent;

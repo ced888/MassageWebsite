@@ -8,33 +8,20 @@ import { Button } from "@mui/material";
 
 //Fetch available practitioners here
 
-function PractitionerComponent({onChange, duration, sel_date, time}){
-    const [prac, setPracs] = useState([]);
-    sel_date = sel_date.format('YYYY-MM-DD');
-    console.log("/getavailprac/" + sel_date +" " + time + ":00/" + duration);
+//function PractitionerComponent({onChange, duration, sel_date, time}){
+function PractitionerComponent({onChange, practitioners}){
+    let prac = practitioners;
 
-    const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
-    useEffect(() => {
-        async function fetchData(){
-            //fetch("/getavailprac/" + sel_date +" " + time + ":00/" + duration)
-            const res = await fetch(`/getavailprac/${sel_date} ${time}:00/${duration}`);
-            res
-            .json()
-            .then(res => {setPracs(res); console.log(res)})
-            .catch(err => console.log("Error", err));
-        }
-        fetchData();
-    },[ignored]);
-    console.log(prac);
-    // if (prac.length == 0) return <h1>No Practitioners for this timeslot</h1>
-    
     const handleChanges = (val) => {
         console.log(val.target.value);
     };
     
+    if(prac.length != practitioners.length){
+        return <>Loading</>
+    }
+
     return (
     <>
-    <Button onClick={forceUpdate}>Refresh</Button>
     <RadioGroup
     //overlay
         row

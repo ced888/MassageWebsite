@@ -17,18 +17,26 @@ function BookingPage(){
     const [selectedTime, setTime] = useState('9:00');
     const [selectedPrac, setPrac] = useState();
 
-    // const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
-    // useEffect((selectedDate, selectedTime, selectedDuration) => {
-    //     async function fetchData(){
-    //         //fetch("/getavailprac/" + sel_date +" " + time + ":00/" + duration)
-    //         await fetch(`/getavailprac/${selectedDate} ${time}:00/${selectedDuration}`)
+    const [prac, setPracs] = useState([]);
+
+    useEffect(() => {
+        let sel_date = selectedDate.format('YYYY-MM-DD');
+        async function fetchData(){
+          
+            console.log(selectedDate, selectedTime, selectedDuration);
+            //fetch("/getavailprac/" + sel_date +" " + time + ":00/" + duration)
+            const res = await fetch(`/getavailprac/${sel_date} ${selectedTime}:00/${selectedDuration}`);
+            res
+            .json()
+            .then(res => setPracs(res))
+            .catch(err => console.log("Error", err));
             
-    //         .then(res => console.log(res))
-    //         .catch(err => console.log("Error", err));
-    //     }
-    //     fetchData();
-    //     console.log("fetch called")
-    // },[ignored]);
+            return res;
+        }
+        fetchData();
+
+        console.log("called");
+    },[selectedDate, selectedTime]);
 
     function handleDurationSelect(duration_val){
         console.log(duration_val.target.value)
@@ -39,13 +47,32 @@ function BookingPage(){
         setDate(dateObject);
     };
 
+    const [showPrac, setShowPrac] = useState(false); 
+    
     function handleHourSelect(selectedHour){
         // Handle the selected hour
-        console.log(`Hour ${selectedHour} selected`);
         setTime(selectedHour);
 
+        console.log(prac);
+        if(prac.length > 0)
+        {
+            setShowPrac(true);
+            console.log("prac component render");
+            
+        }
+        else{
+            setShowPrac(false);
+        }
+        
         // forceUpdate();
     };
+    
+    let PracComp = null;
+    if(showPrac){
+        PracComp = <PractitionerComponent onChange={handlePracSelect} practitioners={prac} />;
+    } else {
+        PracComp = <>hello</>;
+    }
     
     function handlePracSelect(selectedPracId){
         console.log(selectedPracId.target.value);
@@ -55,7 +82,7 @@ function BookingPage(){
     
     return(
         <div className="container">
-            booking page here. Your Massage type id is: {params.id}
+            booking page here. Your Massage type id is: {params.massageType}
             <div>
                 <InputLabel id="demo-simple-select-label">How long would you like your massage?</InputLabel>
                 <Select
@@ -80,12 +107,8 @@ function BookingPage(){
             endHour={18}
             duration={selectedDuration}
             onHourSelect={handleHourSelect}/>
-            
-            <PractitionerComponent 
-            onChange={handlePracSelect}
-            duration={selectedDuration}
-            sel_date={selectedDate}
-            time={selectedTime} />
+
+            {PracComp}
             
             <div>
             Selected duration is {selectedDuration} <br></br>
@@ -93,6 +116,7 @@ function BookingPage(){
             Selected time is {selectedTime}<br></br>
             Selected Practitioner is {selectedPrac}<br></br>
             </div>
+            
             
             <Button variant="contained" href={"/payment/" +''}> Book Now </Button>
 

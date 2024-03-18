@@ -34,7 +34,7 @@ function App() {
       <BrowserRouter>
       <Routes>
         <Route path='/' element={<Homepage />}/>
-        <Route path="/booking/:id" element={<BookingPage />} />
+        <Route path="/booking/:massageType" element={<BookingPage />} />
         //change the path of the payment to /payment when in cart with a valid service
         <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
         <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
