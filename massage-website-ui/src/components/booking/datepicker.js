@@ -92,6 +92,7 @@ function DatepickerComponent({sel_date, onChange}){
 
     return(
         <div>
+            Select a Date: 
             <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateCalendar
                 value={sel_date}

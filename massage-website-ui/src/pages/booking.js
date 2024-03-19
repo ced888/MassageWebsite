@@ -1,23 +1,26 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import AppDatePicker from '../components/booking/datepicker';
 import TimeslotComponent from '../components/booking/timeslot';
 import PractitionerComponent from "../components/booking/practioner";
 import dayjs from 'dayjs';
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, InputLabel, MenuItem, Select } from "@mui/material";
+import Context from "../components/Context";
 
 
 function BookingPage(){
     
     const params = useParams();
-    const [selectedDuration, setDuration] = useState(90);
+    const [selectedDuration, setDuration] = useState(60);
     const [selectedDate, setDate] = useState(dayjs(Date()));
     const [selectedTime, setTime] = useState('9:00');
     const [selectedPrac, setPrac] = useState();
 
     const [prac, setPracs] = useState([]);
+
+    const [booking, setBookingData ] = useContext(Context);
 
     useEffect(() => {
         let sel_date = selectedDate.format('YYYY-MM-DD');
@@ -69,9 +72,12 @@ function BookingPage(){
     
     let PracComp = null;
     if(showPrac){
-        PracComp = <PractitionerComponent onChange={handlePracSelect} practitioners={prac} />;
+        PracComp = <>
+        Which Practitioner would you prefer?
+        <PractitionerComponent onChange={handlePracSelect} practitioners={prac} />
+        </>;
     } else {
-        PracComp = <>hello</>;
+        PracComp = <>Please select the following:</>;
     }
     
     function handlePracSelect(selectedPracId){
@@ -80,9 +86,23 @@ function BookingPage(){
     }
     const handleChanges = (val) => console.log(val.target.value);
     
+    const navigate = useNavigate();
+    function HandleSubmit(){
+
+        setBookingData({
+            MassageType:params.massageType, 
+            Date:selectedDate, 
+            Time:selectedTime, 
+            Duration:selectedDuration,
+            Practitioner: selectedPrac
+        });
+        console.log(booking);
+        navigate('/payment');
+    }
+
     return(
         <div className="container">
-            booking page here. Your Massage type id is: {params.massageType}
+            <h3>You've selected {params.massageType}</h3>
             <div>
                 <InputLabel id="demo-simple-select-label">How long would you like your massage?</InputLabel>
                 <Select
@@ -92,9 +112,9 @@ function BookingPage(){
                     label="Massage Duration"
                     onChange={handleDurationSelect}
                 >
-                    <MenuItem value={30}>30 Minutes</MenuItem>
+                    <MenuItem value={45}>45 Minutes</MenuItem>
                     <MenuItem value={60}>60 Minutes</MenuItem>
-                    <MenuItem value={90}>90 Minutes</MenuItem>
+                    <MenuItem value={75}>75 Minutes</MenuItem>
                 </Select>
             </div>
 
@@ -107,7 +127,7 @@ function BookingPage(){
             endHour={18}
             duration={selectedDuration}
             onHourSelect={handleHourSelect}/>
-
+            
             {PracComp}
             
             <div>
@@ -118,8 +138,7 @@ function BookingPage(){
             </div>
             
             
-            <Button variant="contained" href={"/payment/" +''}> Book Now </Button>
-
+            <Button variant="contained" onClick={HandleSubmit}> Book Now </Button>
         </div>
     );
 }
