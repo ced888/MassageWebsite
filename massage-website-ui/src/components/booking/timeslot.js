@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect, useReducer} from 'react';
 import './booking.css';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';

@@ -60,7 +60,7 @@ app.use(session({
   }
 }))
 
-
+app.use(cors({origin: 'http://localhost:5000', credentials: true}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -167,7 +167,7 @@ app.post('/login', function (req,res,next){
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
         console.log(user[0].UserID);
-        req.session.userID = user[0].UserID
+        req.session.user = user[0].UserID
         return res.json("Success")
       } else{
         return res.json("Fail")
@@ -191,8 +191,8 @@ app.post('/logout', (req, res) =>{
 })
 
 app.get('/getcurrentuser', (req, res) =>{
-  const userID = req.session.userID
-  console.log(req.session.userID)
+  const userID = req.session.user
+  console.log(req.session.user)
   res.status(200).send(`User ID: ${userID}`);
 })
 
@@ -204,7 +204,7 @@ app.get('/', (req, res) =>{
 })
 
 const redirectHome = (req, res, next) =>{
-  if (req.session.userID) {
+  if (req.session.user) {
     res.redirect('/')
   } else {
     next()
