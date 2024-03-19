@@ -17,25 +17,22 @@ function Login(){
     const handleInput = (event) => {
         setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
     }
-
+//lol
     const handleSubmit = (event) => {
         event.preventDefault();
         const err = Validation(User);
         setErrors(err);
-        console.log(User);
+        console.log("User: " + User);
         if(err.Email === "" && err.PasswordHash ===""){
-            axios.post('http://localhost:3000/login', User)
+            axios.post('http://localhost:3000/login', User, { withCredentials: true })
             .then(res=> {
-                console.log(res.data);
                 if(res.data === "Success"){
                     navigate('/');
                 } else {
                     alert("Invalid email or password");
-                }
-            
+                }         
             })
             .catch(err => console.log(err));
-
         }
     }
 

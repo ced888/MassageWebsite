@@ -6,7 +6,7 @@ var logger            = require('morgan');
 
 var paymentRoute = require("./routes/payment");
 
-var cors              = require('cors');
+const cors              = require('cors');
 var bcrypt            = require('bcrypt');
 
 var session           = require('express-session');
@@ -24,7 +24,6 @@ var app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,7 +35,7 @@ const {
   PORT = 3000,
   NODE_env = 'development',
   SESS_NAME = 'sid',
-  SESS_SECRET = 'XD?XD?!?',
+  SESS_SECRET = 'hahaha6969',
   SESS_LifeTime = TWELVE_HOURS
 } = process.env
 
@@ -53,6 +52,7 @@ app.use(session({
   saveUninitialized: false,
   secret: SESS_SECRET,
   //store: new MssqlStore(options),
+  //userID: "undefined",
   cookie: {
     maxAge: SESS_LifeTime,
     sameSite: true,
@@ -60,7 +60,7 @@ app.use(session({
   }
 }))
 
-
+app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -166,8 +166,16 @@ app.post('/login', function (req,res,next){
     if (user.length > 0){
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
-        console.log(user[0].UserID);
-        req.session.userID = user[0].UserID
+        console.log("user = " + user[0].UserID);
+        req.session.user = user[0].UserID;
+        console.log("req = " + req.session.user);
+        console.log("sesh = " + req.sessionID);
+        /*
+        req.session.save(function(err) {
+          req.session.user = user[0].UserID;
+        })
+        */
+        
         return res.json("Success")
       } else{
         return res.json("Fail")
@@ -186,13 +194,13 @@ app.post('/logout', (req, res) =>{
     }
     res.clearCookie(SESS_NAME);
     return res.json("Success")
-
   })
 })
 
 app.get('/getcurrentuser', (req, res) =>{
-  const userID = req.session.userID
-  console.log(req.session.userID)
+  console.log(req.session);
+  const userID = req.session.user;
+  console.log("sesh" + req.sessionID);
   res.status(200).send(`User ID: ${userID}`);
 })
 
