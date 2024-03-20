@@ -18,26 +18,23 @@ function Login(){
     const handleInput = (event) => {
         setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
     }
-
+//lol
     const handleSubmit = (event) => {
         event.preventDefault();
         const err = Validation(User);
         setErrors(err);
-        console.log(User);
+        console.log("User: " + User);
         if(err.Email === "" && err.PasswordHash ===""){
-            axios.post('http://localhost:3000/login', User, {withCredentials: true})
+            axios.post('http://localhost:3000/login', User, { withCredentials: true })
             .then(res=> {
-                console.log(res.data);
                 if(res.data === "Success"){
                     setUser(User);
                     navigate('/');
                 } else {
                     alert("Invalid email or password");
-                }
-            
+                }         
             })
             .catch(err => console.log(err));
-
         }
     }
 
@@ -61,7 +58,7 @@ function Login(){
                         {errors.PasswordHash && <span className='text-danger'> {errors.PasswordHash}</span>}
                     </div>
                     <button type ='submit' className='btn btn-success w-100 rounded-0'>Log in</button>
-                    <p>fillleeeeeerr</p>
+
                     <Link to="/signup" className='btn btn-default border w-100 bg-light rounded-0 text-decoration-none'>Create Account</Link>
                 </form>
             </div>

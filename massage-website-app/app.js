@@ -6,7 +6,7 @@ var logger            = require('morgan');
 
 var paymentRoute = require("./routes/payment");
 
-var cors              = require('cors');
+const cors              = require('cors');
 var bcrypt            = require('bcrypt');
 
 var session           = require('express-session');
@@ -18,13 +18,13 @@ var router = express.Router();
 
 const sql = require('./dbFiles/dboperation');
 const emailz = require('./dbFiles/email');
+const { exist } = require('joi');
 
 var app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -36,7 +36,7 @@ const {
   PORT = 3000,
   NODE_env = 'development',
   SESS_NAME = 'sid',
-  SESS_SECRET = 'XD?XD?!?',
+  SESS_SECRET = 'hahaha6969',
   SESS_LifeTime = TWELVE_HOURS
 } = process.env
 
@@ -53,14 +53,15 @@ app.use(session({
   saveUninitialized: false,
   secret: SESS_SECRET,
   //store: new MssqlStore(options),
+  //userID: "undefined",
   cookie: {
     maxAge: SESS_LifeTime,
     sameSite: true,
-    secure:IN_PROD
+    secure: process.env.NODE_ENV === 'production',
   }
 }))
 
-app.use(cors({origin: 'http://localhost:5000', credentials: true}));
+app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -146,16 +147,16 @@ app.post('/createemployeeold', function (req, res, next) {
 app.post('/createcustomer', function (req, res, next) {
   console.log(req.body.Customer);
   console.log(req.body.User);
-
-  /*
-  req.body.User.PasswordHash = sql.hashPassword(req.body.User.PasswordHash)
-  .then(() =>   sql.createCustomer(req.body.Customer, req.body.User)).catch
-  console.log(req.body.User.PasswordHash);
-  console.log(req.body.User)
-*/
-  sql.createCustomer(req.body.Customer, req.body.User)
-  .then(() => res.json({message: 'Customer Created'}))
-  .catch(next);
+  const existing = sql.login(req.body.User)
+  .then(existing =>{
+    if (existing.length != 0){
+      return res.json("Fail");
+    } else{
+      sql.createCustomer(req.body.Customer, req.body.User)
+         .then(() => res.json({message: 'Customer Created'}))
+         .catch(next);
+    }
+})
 })
 
 //function to log in
@@ -166,8 +167,16 @@ app.post('/login', function (req,res,next){
     if (user.length > 0){
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
-        console.log(user[0].UserID);
-        req.session.user = user[0].UserID
+        console.log("user = " + user[0].UserID);
+        req.session.userid = user[0].UserID;
+        console.log("req = " + req.session.userid);
+        console.log("sesh = " + req.sessionID);
+        /*
+        req.session.save(function(err) {
+          req.session.user = user[0].UserID;
+        })
+        */
+        
         return res.json("Success")
       } else{
         return res.json("Fail")
@@ -179,6 +188,7 @@ app.post('/login', function (req,res,next){
   .catch(next);
 })
 
+//logout
 app.post('/logout', (req, res) =>{
   req.session.destroy(err =>{
     if (err) {
@@ -186,19 +196,30 @@ app.post('/logout', (req, res) =>{
     }
     res.clearCookie(SESS_NAME);
     return res.json("Success")
-
   })
 })
 
-app.get('/getcurrentuser', (req, res) =>{
-  const userID = req.session.user
-  console.log(req.session.user)
-  res.status(200).send(`User ID: ${userID}`);
+const isAuthenticated = (req, res, next) => {
+  if (req.session.userid) {
+    console.log("hi");
+    next();
+  } else {
+    console.log('bye');
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+//check auth
+app.get('/checkauth', isAuthenticated, (req, res) =>{
+  res.json({authenticated:true});
 })
 
+app.get('/getuser', (req, res)=>{
+  sql.getUser(req.session.userid).then((result)=> {
+    res.json(result[0]);
+  })
+})
   
-
-
 app.get('/', (req, res) =>{
   const {userID} = req.session
 })
@@ -237,8 +258,8 @@ app.get('/getavailprac/:date/:duration', function (req, res, next){
 })
 
 //Get all bookings of the customers past, present, and future bookings
-app.get('/customer/bookings/:id', function (req, res, next){
-  sql.getCustomerBookings(req.params.id)
+app.get('/customer/bookings/:email', function (req, res, next){
+  sql.getCustomerBookings(req.params.email)
   .then((result)=>{
     res.json(result);
   })

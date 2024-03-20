@@ -69,10 +69,15 @@ function Signup() {
         
         if(err.FirstName === "" && err.LastName === "" && err.Email === "" && err2.PasswordHash ===""){
             axios.post('http://localhost:3000/createcustomer', INPUT)
-            .then(res=> navigate('/login'))
+            .then(res=> {
+                if (res.data === "Fail"){
+                    alert("Email is already used");
+                } else{ 
+                    navigate('/login')
+                }
+            })
             .catch(err => console.log(err));
         }
-        
     };
 
     return(
