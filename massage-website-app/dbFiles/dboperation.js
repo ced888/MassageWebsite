@@ -220,12 +220,13 @@ async function getMassageType(){
     }
 }
 
-async function getMassagePrice(MassageTypeID){
+async function getMassagePrice(MassageTypeID, Duration){
     try{
         let pool = await sql.connect(config);
         let massagetype = await pool.request()
-        .input('input_parameter', sql.Int, MassageTypeID)
-        .query("SELECT MT.MassageType, DurationInMin, Price FROM MassagePriceDB MP INNER JOIN MassageTypeDB MT ON MT.MassageTypeID = MP.MassageTypeID where MP.MassageTypeID = @input_parameter");
+        .input('input_massageTypeId', sql.Int, MassageTypeID)
+        .input('input_duration', sql.Int, Duration )
+        .query("SELECT MT.MassageType, DurationInMin, Price FROM MassagePriceDB MP INNER JOIN MassageTypeDB MT ON MT.MassageTypeID = MP.MassageTypeID where MP.MassageTypeID = @input_massageTypeId AND MP.DurationInMin = @input_duration");
         return massagetype.recordsets;
     }
     catch(error){

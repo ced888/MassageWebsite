@@ -43,6 +43,7 @@ function BookingPage(){
 
     function handleDurationSelect(duration_val){
         console.log(duration_val.target.value)
+        console.log(params);
         setDuration(duration_val.target.value);
     };
     
@@ -55,19 +56,17 @@ function BookingPage(){
     function handleHourSelect(selectedHour){
         // Handle the selected hour
         setTime(selectedHour);
-
+        var time = selectedHour.split(":");
+        setDate(selectedDate.set('hour', time[0]).set('minute', time[1]).set('second', 0));
         console.log(prac);
         if(prac.length > 0)
         {
             setShowPrac(true);
             console.log("prac component render");
-            
         }
         else{
             setShowPrac(false);
         }
-        
-        // forceUpdate();
     };
     
     let PracComp = null;
@@ -88,9 +87,9 @@ function BookingPage(){
     
     const navigate = useNavigate();
     function HandleSubmit(){
-
         setBookingData({
-            MassageType:params.massageType, 
+            MassageType:params.massageType,
+            MassageTypeId:params.massageTypeId, 
             Date:selectedDate, 
             Time:selectedTime, 
             Duration:selectedDuration,
@@ -138,7 +137,7 @@ function BookingPage(){
             </div>
             
             
-            <Button variant="contained" onClick={HandleSubmit}> Book Now </Button>
+            <Button variant="contained" disabled={selectedTime === null && selectedPrac === null} onClick={HandleSubmit}> Book Now </Button>
         </div>
     );
 }

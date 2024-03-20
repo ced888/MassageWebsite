@@ -43,7 +43,7 @@ function ServicesComponent(){
                                     <Card.Text>
                                     {services.MassageDescription}
                                     </Card.Text>
-                                    <Button variant="primary" href={"/booking/" + services.MassageType}>Book Now</Button>
+                                    <Button variant="primary" href={"/booking/" + services.MassageType +"/"+ services.MassageTypeID}>Book Now</Button>
                                 </Card.Body>
                                 </Card>
                                 </Col>

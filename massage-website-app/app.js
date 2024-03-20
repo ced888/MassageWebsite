@@ -220,8 +220,8 @@ app.get('/massagetype', function (req,res,next){
 
 //Get list of the massage price per duration of massage type
 //Need MassagetypeID as input
-app.get('/massagetype/:id', function (req, res,next) {
-  sql.getMassagePrice(req.params.id)
+app.get('/massageprice/:id/:duration', function (req, res,next) {
+  sql.getMassagePrice(req.params.id, req.params.duration)
   .then(user=> res.json(user))
   .catch(next);
   
