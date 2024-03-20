@@ -57,7 +57,6 @@ function Payment(props) {
       <div className="row">
         <div className="col-lg">
           Massage information here
-          {BookingComp}
         </div>
         <div className="col-sm">
           {clientSecret && stripePromise && (

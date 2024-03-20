@@ -1,13 +1,23 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavLink from 'react-router-dom';
 import Context from './Context';
+import axios from 'axios';
+import { useEffect } from 'react';
+import checkAuthentication from '../pages/validationfiles/authService';
+import Button from 'react-bootstrap/Button';
+
+
+
 
 function NavbarComponent() {
   const [ user, setUser ] = useContext(Context);
+  const [authenticated, setAuthenticated] = useState(false);
   console.log(user);
+
+  
 
   let UserComp = null;
   if(user.Email != null)
@@ -15,6 +25,33 @@ function NavbarComponent() {
     console.log(user);
     UserComp = <Nav.Link className='text-right'> Hello, {user.Email}</Nav.Link>;
   }
+
+
+  const handleLogout = (event) => {
+    axios.post('http://localhost:3000/logout', null, { withCredentials: true })
+      .then(res=> {
+        console.log("heyyy");       
+      })
+      .catch(err => console.log(err));
+    }
+
+  useEffect(()=>{
+    checkAuthentication()
+    .then(authenticated=>{
+      setAuthenticated(authenticated);
+    })
+    .catch(err=>{
+      console.error('error in authentication: ', err)
+    })
+  });
+
+  
+  if (authenticated){
+    const User1 = axios.get('http://localhost:3000/getuser');
+    console.log(User1);
+  }
+  
+  
 
   return (
     //TODO: Add massage icon img
@@ -28,8 +65,27 @@ function NavbarComponent() {
             <Nav.Link href="#about">About</Nav.Link>
             <Nav.Link href="/#services">Services</Nav.Link>
             <Nav.Link href="/contacts">Contacts</Nav.Link>
+
             {UserComp}
           </Nav>
+          <div>
+            {authenticated ? (
+            <div style={{ textAlign: 'right' }}>
+              <Nav.Link className='text-right'> Logged In</Nav.Link>
+              <a href="/">
+              <button type="button" onClick={handleLogout}>Logout  </button> 
+              </a>
+            </div>) :
+            <div style={{ textAlign: 'right' }}>
+              <a href="/login">
+              <button type="button">Login </button> 
+              </a>
+              <a href="/signup">
+              <button type="button">Signup </button> 
+              </a>
+            </div>}
+            </div>
+ 
         </Navbar.Collapse>
       </Container>
     </Navbar>

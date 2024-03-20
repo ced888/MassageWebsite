@@ -18,6 +18,7 @@ var router = express.Router();
 
 const sql = require('./dbFiles/dboperation');
 const emailz = require('./dbFiles/email');
+const { exist } = require('joi');
 
 var app = express();
 
@@ -56,7 +57,7 @@ app.use(session({
   cookie: {
     maxAge: SESS_LifeTime,
     sameSite: true,
-    secure:IN_PROD
+    secure: process.env.NODE_ENV === 'production',
   }
 }))
 
@@ -146,16 +147,16 @@ app.post('/createemployeeold', function (req, res, next) {
 app.post('/createcustomer', function (req, res, next) {
   console.log(req.body.Customer);
   console.log(req.body.User);
-
-  /*
-  req.body.User.PasswordHash = sql.hashPassword(req.body.User.PasswordHash)
-  .then(() =>   sql.createCustomer(req.body.Customer, req.body.User)).catch
-  console.log(req.body.User.PasswordHash);
-  console.log(req.body.User)
-*/
-  sql.createCustomer(req.body.Customer, req.body.User)
-  .then(() => res.json({message: 'Customer Created'}))
-  .catch(next);
+  const existing = sql.login(req.body.User)
+  .then(existing =>{
+    if (existing.length != 0){
+      return res.json("Fail");
+    } else{
+      sql.createCustomer(req.body.Customer, req.body.User)
+         .then(() => res.json({message: 'Customer Created'}))
+         .catch(next);
+    }
+})
 })
 
 //function to log in
@@ -167,8 +168,8 @@ app.post('/login', function (req,res,next){
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
         console.log("user = " + user[0].UserID);
-        req.session.user = user[0].UserID;
-        console.log("req = " + req.session.user);
+        req.session.userid = user[0].UserID;
+        console.log("req = " + req.session.userid);
         console.log("sesh = " + req.sessionID);
         /*
         req.session.save(function(err) {
@@ -187,6 +188,7 @@ app.post('/login', function (req,res,next){
   .catch(next);
 })
 
+//logout
 app.post('/logout', (req, res) =>{
   req.session.destroy(err =>{
     if (err) {
@@ -197,16 +199,27 @@ app.post('/logout', (req, res) =>{
   })
 })
 
-app.get('/getcurrentuser', (req, res) =>{
-  console.log(req.session);
-  const userID = req.session.user;
-  console.log("sesh" + req.sessionID);
-  res.status(200).send(`User ID: ${userID}`);
+const isAuthenticated = (req, res, next) => {
+  if (req.session.userid) {
+    console.log("hi");
+    next();
+  } else {
+    console.log('bye');
+    res.status(401).json({ message: "Unauthorized" });
+  }
+};
+
+//check auth
+app.get('/checkauth', isAuthenticated, (req, res) =>{
+  res.json({authenticated:true});
 })
 
+app.get('/getuser', (req, res)=>{
+  sql.getUser(req.session.userid).then((result)=> {
+    res.json(result[0]);
+  })
+})
   
-
-
 app.get('/', (req, res) =>{
   const {userID} = req.session
 })
@@ -245,8 +258,8 @@ app.get('/getavailprac/:date/:duration', function (req, res, next){
 })
 
 //Get all bookings of the customers past, present, and future bookings
-app.get('/customer/bookings/:id', function (req, res, next){
-  sql.getCustomerBookings(req.params.id)
+app.get('/customer/bookings/:email', function (req, res, next){
+  sql.getCustomerBookings(req.params.email)
   .then((result)=>{
     res.json(result);
   })
