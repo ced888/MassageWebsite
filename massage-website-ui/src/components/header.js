@@ -17,15 +17,12 @@ function NavbarComponent() {
   const [authenticated, setAuthenticated] = useState(false);
   console.log(user);
 
-  
-
-  let UserComp = null;
-  if(user.Email != null)
-  {
-    console.log(user);
-    UserComp = <Nav.Link className='text-right'> Hello, {user.Email}</Nav.Link>;
-  }
-
+  // let UserComp = null;
+  // if(user.Email != null)
+  // {
+  //   console.log(user);
+  //   UserComp = <Nav.Link className='text-right'> Hello, {user.Email}</Nav.Link>;
+  // }
 
   const handleLogout = (event) => {
     axios.post('http://localhost:3000/logout', null, { withCredentials: true })
@@ -47,8 +44,8 @@ function NavbarComponent() {
 
   
   if (authenticated){
-    const User1 = axios.get('http://localhost:3000/getuser');
-    console.log(User1);
+    const User1 = axios.get('http://localhost:3000/getuser')
+    .then((res) => console.log(res));
   }
   
   
@@ -65,26 +62,27 @@ function NavbarComponent() {
             <Nav.Link href="#about">About</Nav.Link>
             <Nav.Link href="/#services">Services</Nav.Link>
             <Nav.Link href="/contacts">Contacts</Nav.Link>
-
-            {UserComp}
+            {/* {UserComp} */}
           </Nav>
           <div>
             {authenticated ? (
-            <div style={{ textAlign: 'right' }}>
-              <Nav.Link className='text-right'> Logged In</Nav.Link>
-              <a href="/">
-              <button type="button" onClick={handleLogout}>Logout  </button> 
-              </a>
-            </div>) :
+              <div style={{ textAlign: 'right' }}>
+                <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link>
+                <Nav.Item className='d-inline'> Logged In </Nav.Item>
+                <a href="/">
+                <button type="button" className="btn btn-outline-secondary" onClick={handleLogout}>Logout  </button> 
+                </a>
+              </div>
+            ):
             <div style={{ textAlign: 'right' }}>
               <a href="/login">
-              <button type="button">Login </button> 
+              <button type="button" className="btn btn-outline-secondary">Login </button> 
               </a>
               <a href="/signup">
-              <button type="button">Signup </button> 
+              <button type="button" className="btn btn-outline-secondary">Signup </button> 
               </a>
             </div>}
-            </div>
+          </div>
  
         </Navbar.Collapse>
       </Container>

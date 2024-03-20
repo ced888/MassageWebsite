@@ -215,6 +215,7 @@ app.get('/checkauth', isAuthenticated, (req, res) =>{
 })
 
 app.get('/getuser', (req, res)=>{
+  console.log(req.session.user);
   sql.getUser(req.session.userid).then((result)=> {
     res.json(result[0]);
   })

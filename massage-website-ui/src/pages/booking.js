@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useState } from "react";
 import AppDatePicker from '../components/booking/datepicker';
 import TimeslotComponent from '../components/booking/timeslot';
-import PractitionerComponent from "../components/booking/practioner";
+import PractitionerComponent from "../components/booking/practitioner";
 import dayjs from 'dayjs';
 import { useNavigate, useParams } from "react-router-dom";
 import '../App.css';

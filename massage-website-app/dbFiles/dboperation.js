@@ -172,7 +172,7 @@ async function getUser(UserID){
         let pool = await sql.connect(config);
         let User = await pool.request()
         .input('inputUserID', sql.Int,UserID)
-        .query('Select FirstName, LastName from CustomerDB WHERE UserID = @inputUserID')
+        .query(`exec GetUserData @inputUserID`)
         return User.recordset;
     }catch(error){
         console.log("eerroorr:" + error);
@@ -222,7 +222,10 @@ async function login(Login){
 async function getBookings(){
     try{
         let pool = await sql.connect(config);
-        let res = await pool.request().query("SELECT * FROM BookingDB");
+        let res = await pool.request().query(`
+        Select BookingID ,b.CustomerID ,b.EmployeeID ,b.MassageTypeID, mt.MassageType, e.FirstName as 'PFirstName', e.LastName as 'PLastName', DateCreated,DurationInMins,StartDateTime,EndDateTime,PriceTotal,Status,IsPaid
+        from BookingDB b, CustomerDB c, EmployeeDB e, MassageTypeDB mt
+        WHERE b.CustomerID = c.CustomerID AND b.EmployeeID = e.EmployeeID AND b.MassageTypeID = mt.MassageTypeID`);
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);

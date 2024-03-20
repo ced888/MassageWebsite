@@ -36,8 +36,8 @@ function ServicesComponent(){
                       massageServices.map(services=> {
                             return(
                                 <Col key={services.MassageTypeID}>
-                                <Card style={{ width: '18rem' }} key={services.MassageTypeID}>
-                                <Card.Img variant="top" src={require("../assets/img/services-1.jpg")} />
+                                <Card style={{ width: '18rem', margin:'1rem'}} key={services.MassageTypeID}>
+                                <Card.Img variant="top" src={require(`../assets/img/services/services-${services.MassageTypeID}.jpg`)}/>
                                 <Card.Body>
                                     <Card.Title>{services.MassageType}</Card.Title>
                                     <Card.Text>
