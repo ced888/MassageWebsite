@@ -1,29 +1,29 @@
-import React from "react";
+import React, {useEffect, useState, useReducer} from "react";
 import Avatar from '@mui/material/Avatar';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/material/Typography';
-import { Container, TableRow } from "@mui/material";
-
+import { Button } from "@mui/material";
 
 //Fetch available practitioners here
 
-function PractitionerComponent({onChange}){
+//function PractitionerComponent({onChange, duration, sel_date, time}){
+function PractitionerComponent({onChange, practitioners}){
+    let prac = practitioners;
 
     const handleChanges = (val) => {
         console.log(val.target.value);
     };
-
-    const practitioners = [
-        {name:"Erin", id:"1"},
-        {name:"Aaron", id:"2"},
-        {name:"Marissa", id:"3"}
-    ];
+    
+    if(prac.length != practitioners.length){
+        return <>Loading</>
+    }
 
     return (
+    <>
     <RadioGroup
-        overlay
+    //overlay
         row
         name="member"
         orientation="horizontal"
@@ -33,10 +33,10 @@ function PractitionerComponent({onChange}){
         //onChange={handleChanges}
         onChange={onChange}
       >
-        {practitioners.map((prac) => (
+        {prac.map((prac) => (
             <Sheet
                 component="label"
-                key={prac.id}
+                key={prac.EmployeeID}
                 variant="outlined"
                 sx={{
                 p: 2,
@@ -49,20 +49,21 @@ function PractitionerComponent({onChange}){
                 }}
             >
                 <Radio
-                value={`${prac.id}`}
+                value={`${prac.EmployeeID}`}
                 variant="soft"
                 sx={{
                     mb: 2,
                 }}
                 />
-                <Avatar alt={`Practitioner ${prac.id}`} src={require(`../../assets/img/profile/practitioner-${prac.id}.jpg`)} sx={{ height: 100, width:100 }}/>
+                <Avatar alt={`Practitioner ${prac.EmployeeID}`} src={require(`../../assets/img/profile/practitioner-${prac.EmployeeID}.jpg`)} sx={{ height: 100, width:100 }}/>
                 <Typography level="body-sm" sx={{mt:1}}>
-                    Practitioner {prac.name}
+                    Practitioner {prac.FirstName} {prac.LastName}
                 </Typography>
             </Sheet>
             ))}
 
       </RadioGroup>
+      </>
     )
 }
 

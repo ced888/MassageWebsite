@@ -213,7 +213,7 @@ async function getMassageType(){
     try{
         let pool = await sql.connect(config);
         let res = await pool.request()
-        .query("SELECT MassageType, MassageDescription FROM MassageTypeDB");
+        .query("SELECT MassageTypeID, MassageType, MassageDescription FROM MassageTypeDB");
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);

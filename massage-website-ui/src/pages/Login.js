@@ -1,9 +1,9 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import { Link } from 'react-router-dom'
 import Validation from './validationfiles/LoginValidation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import Context from '../components/Context';
 
 function Login(){
     const [User, setUsers] = useState({
@@ -11,6 +11,7 @@ function Login(){
         PasswordHash:''
     })
 
+    const [ user, setUser ] = useContext(Context);
     
     const navigate = useNavigate();
     const[errors, setErrors] = useState({})
@@ -27,6 +28,7 @@ function Login(){
             axios.post('http://localhost:3000/login', User, { withCredentials: true })
             .then(res=> {
                 if(res.data === "Success"){
+                    setUser(User);
                     navigate('/');
                 } else {
                     alert("Invalid email or password");
@@ -37,6 +39,7 @@ function Login(){
     }
 
     return(
+        <>
         <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
             <div className='bg-white p-3 rounded w-25'>
                 <h2>Log in</h2>
@@ -60,6 +63,7 @@ function Login(){
                 </form>
             </div>
         </div>
+        </>
     )
 }
 

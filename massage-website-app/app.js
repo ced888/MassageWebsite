@@ -212,7 +212,7 @@ app.get('/', (req, res) =>{
 })
 
 const redirectHome = (req, res, next) =>{
-  if (req.session.userID) {
+  if (req.session.user) {
     res.redirect('/')
   } else {
     next()
