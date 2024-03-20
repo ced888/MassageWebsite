@@ -107,6 +107,15 @@ async function createCustomer(Customer, User){
         console.log(User.PasswordHash);
 
         let pool = await sql.connect(config);
+
+        let user = await pool.request()
+        .query(`INSERT INTO UserDB VALUES
+        (
+        '${User.Email}',
+        '${User.PasswordHash}', 
+        ${User.IsAdmin}
+        )`)
+        
         let customer = await pool.request()
         .query(`INSERT INTO CustomerDB (FirstName, LastName, Email, PhoneNumber) VALUES
         (
@@ -117,6 +126,23 @@ async function createCustomer(Customer, User){
         )`)
 
         //let pool2 = await sql.connect(config);
+
+    } catch(error){
+        console.log("erroror111 from creating:" + error);
+    }
+}
+
+//v2 of creating employee 
+async function createCustomer(Customer, User){
+    try{
+        console.log(Customer);
+        console.log(User);
+        console.log(User.PasswordHash);
+        User.PasswordHash = await bcrypt.hash(User.PasswordHash,10);
+        console.log(User.PasswordHash);
+
+        let pool = await sql.connect(config);
+
         let user = await pool.request()
         .query(`INSERT INTO UserDB VALUES
         (
@@ -124,9 +150,34 @@ async function createCustomer(Customer, User){
         '${User.PasswordHash}', 
         ${User.IsAdmin}
         )`)
+        
+        let customer = await pool.request()
+        .query(`INSERT INTO CustomerDB (FirstName, LastName, Email, PhoneNumber) VALUES
+        (
+        '${Customer.FirstName}', 
+        '${Customer.LastName}',
+        '${Customer.Email}', 
+        '${Customer.PhoneNumber}'
+        )`)
+
+        //let pool2 = await sql.connect(config);
+
     } catch(error){
         console.log("erroror111 from creating:" + error);
     }
+}
+
+async function getUser(UserID){
+    try{
+        let pool = await sql.connect(config);
+        let User = await pool.request()
+        .input('inputUserID', sql.Int,UserID)
+        .query('Select FirstName, LastName from CustomerDB WHERE UserID = @inputUserID')
+        return User.recordset;
+    }catch(error){
+        console.log("eerroorr:" + error);
+    }
+    
 }
 
 //old version of creating employee back when password was in employee table and userDB wasnt made yet
@@ -152,6 +203,7 @@ async function createEmployeeOLD(Employee){
 
 
 //function to try to log in
+//also used to check for existing email during signup
 async function login(Login){
     try{
         let pool = await sql.connect(config);
@@ -252,12 +304,12 @@ async function getPracFromTime(Start, Duration){
 
 //Get customer bookings past and future
 //Input is CustomerID
-async function getCustomerBookings(CustomerID){
+async function getCustomerBookings(Email){
     try{
         let pool = await sql.connect(config);
         let result = await pool.request()
-        .input('input1', sql.Int, CustomerID)
-        .query('Select C.FirstName, C.LastName, E.FirstName as EFirstName, E.LastName as ELastName, M.MassageType, B.StartDateTime, B.DurationInMins, B.PriceTotal FROM CustomerDB C INNER JOIN BookingDB B ON C.CustomerID = B.CustomerID INNER JOIN EmployeeDB E ON E.EmployeeID = B.EmployeeID INNER JOIN MassageTypeDB M ON B.MassageTypeID = M.MassageTypeID where C.CustomerID = @input1');
+        .input('input1', sql.NVarChar, Email)
+        .query('Select C.FirstName, C.LastName, C.Email, E.FirstName as EFirstName, E.LastName as ELastName, M.MassageType, B.StartDateTime, B.DurationInMins, B.PriceTotal FROM CustomerDB C INNER JOIN BookingDB B ON C.CustomerID = B.CustomerID INNER JOIN EmployeeDB E ON E.EmployeeID = B.EmployeeID INNER JOIN MassageTypeDB M ON B.MassageTypeID = M.MassageTypeID where C.Email = @input1');
         return result.recordset;
     } catch (error){
         console.log(error);
@@ -364,5 +416,6 @@ module.exports = {
     createEmployeeOLD:createEmployeeOLD,
     createCustomer:createCustomer,
     login:login,
-    hashPassword:hashPassword
+    hashPassword:hashPassword,
+    getUser:getUser
 };
