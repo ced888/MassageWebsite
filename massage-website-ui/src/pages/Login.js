@@ -1,9 +1,10 @@
-import React, {useContext, useState} from 'react'
+import React, {useContext, useState, useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import Validation from './validationfiles/LoginValidation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Context from '../components/Context';
+import LoginContext from '../components/LoginContext';
 
 function Login(){
     const [User, setUsers] = useState({
@@ -11,25 +12,34 @@ function Login(){
         PasswordHash:''
     })
 
-    const [ user, setUser ] = useContext(Context);
+    const [ user, setUser ] = useState(null);
+
+
     
     const navigate = useNavigate();
     const[errors, setErrors] = useState({})
     const handleInput = (event) => {
         setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
     }
-//lol
+    
     const handleSubmit = (event) => {
         event.preventDefault();
         const err = Validation(User);
         setErrors(err);
-        console.log("User: " + User);
         if(err.Email === "" && err.PasswordHash ===""){
             axios.post('http://localhost:3000/login', User, { withCredentials: true })
             .then(res=> {
-                if(res.data === "Success"){
-                    setUser(User);
-                    navigate('/');
+                if(res.data !== "Fail"){
+                    setUser(res.data, ()=>{
+                        navigate('/');
+                    });
+                    const access = res.data.accessToken;
+                    const refresh = res.data.refreshToken;
+                    const lsemail = res.data.userEmail;
+                    localStorage.setItem("accessToken", access)
+                    localStorage.setItem("refreshToken", refresh)
+                    localStorage.setItem("email", lsemail)
+
                 } else {
                     alert("Invalid email or password");
                 }         
@@ -38,10 +48,36 @@ function Login(){
         }
     }
 
+    useEffect(() => {  
+        //input localstorage email and accesstoken 
+        axios.post('http://localhost:3000/getUser', {
+          Email: localStorage.getItem('email')
+        }, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem('accessToken')
+          },
+          withCredentials: true
+        })
+        .then(res => {
+          console.log(res.data);
+          setUser(res.data[0]);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    },[]);
+
+    useEffect(() => {
+        if (user) {
+          navigate('/');
+        }
+      }, [user]);
+
     return(
         <>
         <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
             <div className='bg-white p-3 rounded w-25'>
+
                 <h2>Log in</h2>
                 <form action="" onSubmit={handleSubmit}>
                     <div className='mb-3'>

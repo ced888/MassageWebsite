@@ -19,3 +19,4 @@ npm install --save @stripe/react-stripe-js @stripe/stripe-js
 npm install react-router-dom
 npm install bootstrap
 npm install axios
+npm i jwt-decode

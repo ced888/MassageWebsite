@@ -135,20 +135,15 @@ async function createCustomer(Customer, User){
 //v2 of creating employee 
 async function createCustomer(Customer, User){
     try{
-        console.log(Customer);
-        console.log(User);
-        console.log(User.PasswordHash);
         User.PasswordHash = await bcrypt.hash(User.PasswordHash,10);
-        console.log(User.PasswordHash);
-
         let pool = await sql.connect(config);
-
         let user = await pool.request()
         .query(`INSERT INTO UserDB VALUES
         (
         '${User.Email}',
         '${User.PasswordHash}', 
-        ${User.IsAdmin}
+        ${User.IsAdmin},
+        '${User.UserType}'
         )`)
         
         let customer = await pool.request()
@@ -167,12 +162,12 @@ async function createCustomer(Customer, User){
     }
 }
 
-async function getUser(UserID){
+async function getUser(Email){
     try{
         let pool = await sql.connect(config);
         let User = await pool.request()
-        .input('inputUserID', sql.Int,UserID)
-        .query('Select FirstName, LastName from CustomerDB WHERE UserID = @inputUserID')
+        .input('inputEmail', sql.NVarChar,Email)
+        .query('exec GetUserData "'+Email+'"');
         return User.recordset;
     }catch(error){
         console.log("eerroorr:" + error);
@@ -200,6 +195,20 @@ async function createEmployeeOLD(Employee){
     }
 }
 
+async function registerUser(Email, PasswordHash, IsAdmin, UserType){
+    try{
+        //let PasswordHash1 = await bcrypt.hash(PasswordHash,10);
+        //console.log(PasswordHash1)
+        let pool = await sql.connect(config);
+        const result = await pool.request()
+        .query('exec RegisterUserOnly "'+Email+'", '+PasswordHash+', '+IsAdmin+', '+UserType+'');
+        return result.recordset;
+        }
+    catch(error){
+        console.log(error);
+    }
+}
+
 
 
 //function to try to log in
@@ -207,11 +216,21 @@ async function createEmployeeOLD(Employee){
 async function login(Login){
     try{
         let pool = await sql.connect(config);
-
-        console.log(Login.Email);
         let user = await pool.request()
         .input('inputEmail', sql.NVarChar, Login.Email)
         .query('SELECT * FROM UserDB WHERE Email = @inputEmail');
+        return user.recordset;
+    } catch(error){
+        console.log("login error:" + error);
+    }
+}
+
+async function checkCustomerEmail(Email){
+    try{
+        let pool = await sql.connect(config);
+        let user = await pool.request()
+        .input('inputEmail', sql.NVarChar, Email)
+        .query('SELECT * FROM CustomerDB WHERE Email = @inputEmail');
         return user.recordset;
     } catch(error){
         console.log("login error:" + error);
@@ -236,6 +255,18 @@ async function getBooking(BookingID){
         let res = await pool.request()
         .input('inputID', sql.Int, BookingID)
         .query("SELECT * FROM BookingDB WHERE BookingID = @inputID");
+        return res.recordset;
+    } catch(error){
+        console.log("error:" + error);
+    }
+}
+
+async function getUsersBookings(Email){
+    try{
+        let pool = await sql.connect(config);
+        let res = await pool.request()
+        .input('inputEmail', sql.NVarChar, Email)
+        .query("SELECT * FROM BookingDB B INNER JOIN CustomerDB C ON C.CustomerID = B.CustomerID INNER JOIN UserDB U ON C.UserID = U.UserID WHERE U.Email = @inputEmail");
         return res.recordset;
     } catch(error){
         console.log("error:" + error);
@@ -384,6 +415,45 @@ async function hashPassword(Password){
     }
 }
 
+async function inputRefreshToken(User, RefreshToken){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputUser', sql.Int, User)
+        .input('inputRToken', sql.NVarChar, RefreshToken)
+        .query('INSERT INTO RefreshTokens (UserID, Token) VALUES (@inputUser, @inputRToken)')
+        return result.recordset;
+    } catch(error){
+        console.log(error);
+    }
+    
+}
+
+async function findRefreshToken(RefreshToken){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputRToken', sql.NVarChar, RefreshToken)
+        .query("SELECT * FROM RefreshTokens WHERE Token = @inputRToken")
+        return result.recordset;
+    } catch(error){
+        console.log(error);
+    }
+}
+
+async function deleteRefreshToken(RefreshToken){
+    try{
+        let pool = await sql.connect(config);
+        let result = await pool.request()
+        .input('inputRToken', sql.NVarChar, RefreshToken)
+        .query("DELETE FROM RefreshTokens WHERE Token = @inputRToken")
+        return result.recordset;
+    } catch(error){
+        console.log(error);
+    }
+}
+
+
 
 
 
@@ -395,11 +465,14 @@ module.exports = {
     getEmployeeScheduleByID:getEmployeeScheduleByID,
     getPractitioner:getPractitioner,
     createEmployee:createEmployee,
+    registerUser:registerUser,
+    checkCustomerEmail:checkCustomerEmail,
 
     createBooking:createBooking,
     getBookings:getBookings,
     getCustomerBookings:getCustomerBookings,
     getBooking:getBooking,
+    getUsersBookings:getUsersBookings,
 
     getMassageType:getMassageType,
     getMassagePrice:getMassagePrice,
@@ -416,5 +489,9 @@ module.exports = {
     createCustomer:createCustomer,
     login:login,
     hashPassword:hashPassword,
-    getUser:getUser
+    getUser:getUser,
+
+    inputRefreshToken:inputRefreshToken,
+    findRefreshToken:findRefreshToken,
+    deleteRefreshToken:deleteRefreshToken
 };
