@@ -8,56 +8,61 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import checkAuthentication from '../pages/validationfiles/authService';
 import Button from 'react-bootstrap/Button';
+import LoginContext from './LoginContext';
 
 
 
 
 function NavbarComponent() {
-  const [ user, setUser ] = useContext(Context);
-  const [authenticated, setAuthenticated] = useState(false);
-  console.log(user);
+  const [user,setUser] = useState(null);
+
 
   
-
-  let UserComp = null;
-  if(user.Email != null)
-  {
-    console.log(user);
-    UserComp = <Nav.Link className='text-right'> Hello, {user.Email}</Nav.Link>;
-  }
-
 
   const handleLogout = (event) => {
-    axios.post('http://localhost:3000/logout', null, { withCredentials: true })
-      .then(res=> {
-        console.log("heyyy");       
+    event.preventDefault();
+    axios.post('http://localhost:3000/logout', {
+      token: localStorage.getItem('refreshToken')
+    }, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem('accessToken')
+      },
+      withCredentials: true 
+    })
+      .then(res=> {    
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('email');
+        setUser(null);
       })
       .catch(err => console.log(err));
-    }
-
-  useEffect(()=>{
-    checkAuthentication()
-    .then(authenticated=>{
-      setAuthenticated(authenticated);
-    })
-    .catch(err=>{
-      console.error('error in authentication: ', err)
-    })
-  });
+    } 
 
   
-  if (authenticated){
-    const User1 = axios.get('http://localhost:3000/getuser');
-    console.log(User1);
-  }
-  
-  
+    useEffect(() => {  
+        //input localstorage email and accesstoken 
+        axios.post('http://localhost:3000/getUser', {
+          Email: localStorage.getItem('email')
+        }, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem('accessToken')
+          },
+          withCredentials: true
+        })
+        .then(res => {
+          console.log(res.data);
+          setUser(res.data[0]);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }, []);
 
   return (
     //TODO: Add massage icon img
     <Navbar expand="lg" className="bg-body-tertiary" data-bs-theme="light" bg="dark">
       <Container>
-        <Navbar.Brand href="#home">afterthought massage</Navbar.Brand>
+        <Navbar.Brand href="/#home">afterthought massage</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
@@ -66,24 +71,23 @@ function NavbarComponent() {
             <Nav.Link href="/#services">Services</Nav.Link>
             <Nav.Link href="/contacts">Contacts</Nav.Link>
 
-            {UserComp}
           </Nav>
           <div>
-            {authenticated ? (
-            <div style={{ textAlign: 'right' }}>
-              <Nav.Link className='text-right'> Logged In</Nav.Link>
-              <a href="/">
-              <button type="button" onClick={handleLogout}>Logout  </button> 
-              </a>
-            </div>) :
-            <div style={{ textAlign: 'right' }}>
-              <a href="/login">
+            {user ? (<div style={{ textAlign: 'right' }}>
+            <Nav.Link className='text-right'> {"Hello " + user.FirstName + " "+ user.LastName}</Nav.Link>
+            <Nav.Link href="/">
+            <button type="button" onClick={handleLogout}>Logout  </button> 
+            </Nav.Link>
+          </div>
+            ) :
+            (<div style={{ textAlign: 'right' }}>
+              <Nav.Link href="/login">
               <button type="button">Login </button> 
-              </a>
-              <a href="/signup">
+              </Nav.Link>
+              <Nav.Link href="/signup">
               <button type="button">Signup </button> 
-              </a>
-            </div>}
+              </Nav.Link>
+            </div>)}
             </div>
  
         </Navbar.Collapse>
