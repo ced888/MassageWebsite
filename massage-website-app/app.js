@@ -1,3 +1,5 @@
+require('dotenv').config;
+
 var createError       = require('http-errors');
 var express           = require('express');
 var path              = require('path');
@@ -6,8 +8,9 @@ var logger            = require('morgan');
 
 var paymentRoute = require("./routes/payment");
 
-const cors              = require('cors');
+const cors            = require('cors');
 var bcrypt            = require('bcrypt');
+const jwt             = require('jsonwebtoken')
 
 var session           = require('express-session');
 //del below if it doesnt work (used to store the users login into a table in the database)
@@ -28,46 +31,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-const TWELVE_HOURS = 1000 * 60 * 60 * 12
-const testtime = 1000 * 60
-
-const {
-  PORT = 3000,
-  NODE_env = 'development',
-  SESS_NAME = 'sid',
-  SESS_SECRET = 'hahaha6969',
-  SESS_LifeTime = TWELVE_HOURS
-} = process.env
-
-const IN_PROD  = NODE_env === 'production'
-/*
-var options = {
-  connection: config,
-}
-*/
-
-app.use(session({
-  name: SESS_NAME,
-  resave: false,
-  saveUninitialized: false,
-  secret: SESS_SECRET,
-  //store: new MssqlStore(options),
-  //userID: "undefined",
-  cookie: {
-    maxAge: SESS_LifeTime,
-    sameSite: true,
-    secure: process.env.NODE_ENV === 'production',
-  }
-}))
-
 app.use(cors({ origin: 'http://localhost:5000', credentials: true }));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-
 
 
 //function to test if it will connect to sql
@@ -89,7 +57,6 @@ app.get('/employees/prac', function (req, res, next){
     res.json(result[0]);
   })
 })
-
 
 //Get employee by their id
 //Need EmployeeID as input
@@ -147,37 +114,76 @@ app.post('/createemployeeold', function (req, res, next) {
 app.post('/createcustomer', function (req, res, next) {
   console.log(req.body.Customer);
   console.log(req.body.User);
-  const existing = sql.login(req.body.User)
-  .then(existing =>{
-    if (existing.length != 0){
+  const existuser = sql.login(req.body.User)
+  .then(existuser =>{
+    //if there is already existing user with that email
+    if (existuser.length != 0){
       return res.json("Fail");
     } else{
-      sql.createCustomer(req.body.Customer, req.body.User)
-         .then(() => res.json({message: 'Customer Created'}))
-         .catch(next);
+      const existcust = sql.checkCustomerEmail(req.body.User.Email).then(existcust =>{
+        //if there is already existing customer with that email
+        if (existcust.length !=0){
+          sql.registerUser(req.body.User.Email, req.body.User.PasswordHash, req.body.User.IsAdmin, req.body.User.UserType)
+          .then(() =>res.json({message: 'User Created'}))
+          .catch(next);
+        } else{
+          sql.createCustomer(req.body.Customer, req.body.User)
+          .then(() => res.json({message: 'Customer Created'}))
+          .catch(next);
+        }
+      })
+      
     }
 })
 })
 
-//function to log in
+app.post('/createuser', function (req,res,next) {
+  const existing = sql.checkCustomerEmail(req.body.User.Email).then(existing => {
+    if (existing.length !=0){
+      sql.registerUser(req.body.Email, req.body.PasswordHash, req.body.IsAdmin, req.body.UserType)
+      .then(() =>res.json({message: 'User Created'}))
+      .catch(next);
+    } else{
+
+    }
+  })
+})
+
+function authenticateToken(req,res,next){
+  const authHeader = req.headers['authorization']
+  const token = authHeader && authHeader.split(' ')[1]
+  if (token == null) return res.sendStatus(401)
+  
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) =>{
+    if (err) return res.sendStatus(403)
+    req.user = user
+    next()
+  })
+}
+
+function generateAccessToken(user){
+  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:'6h'})
+}
+
+function generateRefreshToken(user){
+  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.REFRESH_TOKEN_SECRET, { expiresIn:'12h'})
+}
+
+// trying jwt req.body is [email, passwordhash]
 app.post('/login', function (req,res,next){
-  console.log(req.body);
+  //check login credentials
   const user = sql.login(req.body)
   .then(async user=> {
     if (user.length > 0){
+      loginuser = user[0]
       const isValid = await bcrypt.compare(req.body.PasswordHash, user[0].PasswordHash);
       if (isValid === true){
-        console.log("user = " + user[0].UserID);
-        req.session.userid = user[0].UserID;
-        console.log("req = " + req.session.userid);
-        console.log("sesh = " + req.sessionID);
-        /*
-        req.session.save(function(err) {
-          req.session.user = user[0].UserID;
-        })
-        */
+        const accessToken = generateAccessToken(loginuser)
+        const refreshToken = generateRefreshToken(loginuser)
+        console.log(refreshToken)
+        sql.inputRefreshToken(loginuser.UserID, refreshToken)
+        res.json({ userID:loginuser.UserID, userEmail:loginuser.Email, IsAdmin:loginuser.IsAdmin, accessToken: accessToken, refreshToken:refreshToken})
         
-        return res.json("Success")
       } else{
         return res.json("Fail")
       }
@@ -188,43 +194,69 @@ app.post('/login', function (req,res,next){
   .catch(next);
 })
 
-//logout
-app.post('/logout', (req, res) =>{
-  req.session.destroy(err =>{
-    if (err) {
-      return res.json("Fail")
+app.post("/refresh", (req,res)=>{
+  const refreshToken = req.body.token
+  if (!refreshToken) return res.status(401).json("You are not authenticated.")
+  const rtoken = sql.findRefreshToken(refreshToken).then((rtoken) =>{
+    if (rtoken.length == 0){
+      return res.sendStatus(403)
     }
-    res.clearCookie(SESS_NAME);
-    return res.json("Success")
+    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user)=>{
+      err && console.log(err);
+      console.log(user)
+
+      sql.deleteRefreshToken(refreshToken).then(()=>{
+        
+        const newaccessToken = generateAccessToken(user)
+        const newrefreshToken = generateRefreshToken(user)
+        sql.inputRefreshToken(user.UserID, newrefreshToken)
+        res.status(200).json({
+          accessToken:newaccessToken,
+          refreshToken:newrefreshToken
+        });
+      })
+    })
+})
+})
+
+app.post("/logout", authenticateToken, (req,res) =>{
+  console.log(req.body)
+  const refreshToken = req.body.token;
+  sql.deleteRefreshToken(refreshToken).then(() =>{
+    res.sendStatus(200);
+})
+  })
+
+app.get('/getUserHistory', authenticateToken, (req,res)=>{
+  sql.getUsersBookings(req.user.Email).then((result)=>{
+    res.json(result);
+  })
+})
+//
+/*refresh token
+app.post('/token', (req,res) =>{
+  const refreshToken = req.body.token
+
+})
+*/
+
+app.get('/posts', authenticateToken, (req, res) =>{
+  sql.getUser(req.user.Email).then((result)=> {
+    res.json(result);
   })
 })
 
-const isAuthenticated = (req, res, next) => {
-  if (req.session.userid) {
-    console.log("hi");
-    next();
-  } else {
-    console.log('bye');
-    res.status(401).json({ message: "Unauthorized" });
-  }
-};
-
-//check auth
-app.get('/checkauth', isAuthenticated, (req, res) =>{
-  res.json({authenticated:true});
-})
-
-app.get('/getuser', (req, res)=>{
-  console.log(req.session.user);
-  sql.getUser(req.session.userid).then((result)=> {
-    res.json(result[0]);
+app.post('/getUser', authenticateToken, (req,res)=>{
+  sql.getUser(req.body.Email).then((result)=>{
+    res.json(result)
   })
 })
-  
+
 app.get('/', (req, res) =>{
   const {userID} = req.session
 })
 
+/*
 const redirectHome = (req, res, next) =>{
   if (req.session.user) {
     res.redirect('/')
@@ -232,6 +264,7 @@ const redirectHome = (req, res, next) =>{
     next()
   }
 }
+*/
 
 //Get list of all massage types
 app.get('/massagetype', function (req,res,next){

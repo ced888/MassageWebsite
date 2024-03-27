@@ -1,25 +1,15 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { Validation } from './validationfiles/SignupValidation';
 import { passValidation } from './validationfiles/SignupValidation';
 import axios from 'axios';
+import Context from '../components/Context';
 
 function Signup() {
 
-    //to do:
-    //prevent duplicates
-    //fix signup moving to log in page when unsucessful signup
-
-    //suppose to check if there is a user already logged in then redirect
-    
-    /*
-    axios.get('http://localhost:3000/getcurrentuser').then(res => {
-        console.log(res.data);
-    })
-    .catch(err => console.log(err));
-    */
+    const [ user, setUser ] = useState(null);
 
     const [Customer, setCustomer] = useState({
         FirstName: '',
@@ -31,7 +21,8 @@ function Signup() {
     const [User, setUsers] = useState({
         Email:"",
         PasswordHash:"",
-        IsAdmin: 0
+        IsAdmin: 0,
+        UserType: "Customer"
     })
 
     const INPUT = {Customer, User};
@@ -79,6 +70,31 @@ function Signup() {
             .catch(err => console.log(err));
         }
     };
+
+    useEffect(() => {  
+        //input localstorage email and accesstoken 
+        axios.post('http://localhost:3000/getUser', {
+          Email: localStorage.getItem('email')
+        }, {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem('accessToken')
+          },
+          withCredentials: true
+        })
+        .then(res => {
+          console.log(res.data);
+          setUser(res.data[0]);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    },[]);
+
+    useEffect(() => {
+        if (user) {
+          navigate('/');
+        }
+      }, [user]);
 
     return(
         <div className='d-flex justify-content-center align-items-center bg-primary vh-100'>
