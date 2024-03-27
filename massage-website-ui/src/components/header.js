@@ -73,22 +73,24 @@ function NavbarComponent() {
 
           </Nav>
           <div>
-            {user ? (<div style={{ textAlign: 'right' }}>
-            <Nav.Link className='text-right'> {"Hello " + user.FirstName + " "+ user.LastName}</Nav.Link>
-            <Nav.Link href="/">
-            <button type="button" onClick={handleLogout}>Logout  </button> 
-            </Nav.Link>
+            {user ? (
+              <div style={{ textAlign: 'right' }}>
+                <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link>
+                <Nav.Item className='d-inline'> Logged In </Nav.Item>
+                <a href="/">
+                <button type="button" className="btn btn-outline-secondary" onClick={handleLogout}>Logout  </button> 
+                </a>
+              </div>
+            ):
+            <div style={{ textAlign: 'right' }}>
+              <a href="/login">
+              <button type="button" className="btn btn-outline-secondary">Login </button> 
+              </a>
+              <a href="/signup">
+              <button type="button" className="btn btn-outline-secondary">Signup </button> 
+              </a>
+            </div>}
           </div>
-            ) :
-            (<div style={{ textAlign: 'right' }}>
-              <Nav.Link href="/login">
-              <button type="button">Login </button> 
-              </Nav.Link>
-              <Nav.Link href="/signup">
-              <button type="button">Signup </button> 
-              </Nav.Link>
-            </div>)}
-            </div>
  
         </Navbar.Collapse>
       </Container>

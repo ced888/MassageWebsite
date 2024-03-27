@@ -241,7 +241,10 @@ async function checkCustomerEmail(Email){
 async function getBookings(){
     try{
         let pool = await sql.connect(config);
-        let res = await pool.request().query("SELECT * FROM BookingDB");
+        let res = await pool.request().query(`
+        Select BookingID ,b.CustomerID ,b.EmployeeID ,b.MassageTypeID, mt.MassageType, e.FirstName as 'PFirstName', e.LastName as 'PLastName', DateCreated,DurationInMins,StartDateTime,EndDateTime,PriceTotal,Status,IsPaid
+        from BookingDB b, CustomerDB c, EmployeeDB e, MassageTypeDB mt
+        WHERE b.CustomerID = c.CustomerID AND b.EmployeeID = e.EmployeeID AND b.MassageTypeID = mt.MassageTypeID`);
         return res.recordsets;
     } catch(error){
         console.log("erroror :" + error);
@@ -303,12 +306,13 @@ async function getMassageType(){
     }
 }
 
-async function getMassagePrice(MassageTypeID){
+async function getMassagePrice(MassageTypeID, Duration){
     try{
         let pool = await sql.connect(config);
         let massagetype = await pool.request()
-        .input('input_parameter', sql.Int, MassageTypeID)
-        .query("SELECT MT.MassageType, DurationInMin, Price FROM MassagePriceDB MP INNER JOIN MassageTypeDB MT ON MT.MassageTypeID = MP.MassageTypeID where MP.MassageTypeID = @input_parameter");
+        .input('input_massageTypeId', sql.Int, MassageTypeID)
+        .input('input_duration', sql.Int, Duration )
+        .query("SELECT MT.MassageType, DurationInMin, Price FROM MassagePriceDB MP INNER JOIN MassageTypeDB MT ON MT.MassageTypeID = MP.MassageTypeID where MP.MassageTypeID = @input_massageTypeId AND MP.DurationInMin = @input_duration");
         return massagetype.recordsets;
     }
     catch(error){

@@ -36,14 +36,14 @@ function ServicesComponent(){
                       massageServices.map(services=> {
                             return(
                                 <Col key={services.MassageTypeID}>
-                                <Card style={{ width: '18rem' }} key={services.MassageTypeID}>
-                                <Card.Img variant="top" src={require("../assets/img/services-1.jpg")} />
+                                <Card style={{ width: '18rem', margin:'1rem'}} key={services.MassageTypeID}>
+                                <Card.Img variant="top" src={require(`../assets/img/services/services-${services.MassageTypeID}.jpg`)}/>
                                 <Card.Body>
                                     <Card.Title>{services.MassageType}</Card.Title>
                                     <Card.Text>
                                     {services.MassageDescription}
                                     </Card.Text>
-                                    <Button variant="primary" href={"/booking/" + services.MassageType}>Book Now</Button>
+                                    <Button variant="primary" href={"/booking/" + services.MassageType +"/"+ services.MassageTypeID}>Book Now</Button>
                                 </Card.Body>
                                 </Card>
                                 </Col>

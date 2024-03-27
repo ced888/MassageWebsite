@@ -60,7 +60,7 @@ import {
         <PaymentElement id="payment-element" />
         <button className="btn_pay" disabled={isLoading || !stripe || !elements} id="submit">
           <span id="button-text">
-            {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}
+            {isLoading ? <div className="spinner" id="spinner"></div> : "Confirm & Pay"}
           </span>
         </button>
         {/* Show any error or success messages */}

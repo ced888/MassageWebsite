@@ -13,6 +13,7 @@ import {loadStripe} from '@stripe/stripe-js';
 
 import BookingPage from './pages/booking';
 import Homepage from './pages/homepage';
+import BookingHistory from './pages/BookingHistory';
 
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -86,14 +87,13 @@ function App() {
         <header id="header">
           <AppNavBar />
         </header>
-        {/* <Context.Provider value={[booking, setBooking]}> */}
-          <BrowserRouter>
+            <BrowserRouter>
             <Routes>
               <Route path='/' element={<Homepage />}/>
-              <Route path="/booking/:massageType" element={<BookingPage />} />
-              //change the path of the payment to /payment when in cart with a valid 
+              <Route path="/booking/:massageType/:massageTypeId" element={<BookingPage />} />
               <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
               <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
+              <Route path="/bookinghistory" element={<BookingHistory />} />
 
               <Route path="/login" element = {<Login />}/>
               <Route path="/signup" element = {<Signup />}/>
