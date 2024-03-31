@@ -269,7 +269,9 @@ async function getUsersBookings(Email){
         let pool = await sql.connect(config);
         let res = await pool.request()
         .input('inputEmail', sql.NVarChar, Email)
-        .query("SELECT * FROM BookingDB B INNER JOIN CustomerDB C ON C.CustomerID = B.CustomerID INNER JOIN UserDB U ON C.UserID = U.UserID WHERE U.Email = @inputEmail");
+        .query(`Select BookingID ,b.CustomerID ,b.EmployeeID ,b.MassageTypeID, mt.MassageType, e.FirstName as 'PFirstName', e.LastName as 'PLastName', DateCreated,DurationInMins,StartDateTime,EndDateTime,PriceTotal,Status,IsPaid
+        from BookingDB b, CustomerDB c, EmployeeDB e, MassageTypeDB mt, UserDB u
+        WHERE b.CustomerID = c.CustomerID AND b.EmployeeID = e.EmployeeID AND b.MassageTypeID = mt.MassageTypeID AND u.UserID = c.UserID AND c.Email = @inputEmail`);
         return res.recordset;
     } catch(error){
         console.log("error:" + error);
@@ -373,7 +375,7 @@ async function deleteBooking(BookingID){
         let result = await pool.request()
         .input('input1', sql.Int, BookingID)
         .query('DELETE FROM BookingDB WHERE BookingID = @input1');
-        return result.recordset;
+        return result.rowsAffected;
     } catch(error){
         console.log(error);
     }

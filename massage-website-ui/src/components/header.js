@@ -8,15 +8,32 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import checkAuthentication from '../pages/validationfiles/authService';
 import Button from 'react-bootstrap/Button';
-import LoginContext from './LoginContext';
 
 
 
 
 function NavbarComponent() {
-  const [user,setUser] = useState(null);
+  const [ user, setUser ] = useContext(Context);
 
 
+  useEffect(() => {  
+    //input localstorage email and accesstoken 
+    axios.post('http://localhost:3000/getUser', {
+      Email: localStorage.getItem('email')
+    }, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem('accessToken')
+      },
+      withCredentials: true
+    })
+    .then(res => {
+      console.log(res.data);
+      setUser(res.data[0]);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+}, []);
   
 
   const handleLogout = (event) => {
@@ -39,24 +56,7 @@ function NavbarComponent() {
     } 
 
   
-    useEffect(() => {  
-        //input localstorage email and accesstoken 
-        axios.post('http://localhost:3000/getUser', {
-          Email: localStorage.getItem('email')
-        }, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem('accessToken')
-          },
-          withCredentials: true
-        })
-        .then(res => {
-          console.log(res.data);
-          setUser(res.data[0]);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
-    }, []);
+
 
   return (
     //TODO: Add massage icon img

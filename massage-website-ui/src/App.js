@@ -18,14 +18,13 @@ import BookingHistory from './pages/BookingHistory';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Context from './components/Context'; 
-import LoginContext from './components/LoginContext';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [ stripePromise, setStripePromise ] = useState(null);
 
-  const [ loggedin, setLoggedin ] = useState(false);
+  //const [ accessToken, setAccessToken ] = useState(null);
   const [ user, setUser ] = useState(null);
 
   const [ booking, setBooking ] = useState({});
@@ -82,7 +81,6 @@ function App() {
   return (
     <>
     <div className="App">
-    <LoginContext.Provider value= {[loggedin, setLoggedin]}>
     <Context.Provider value={[user, setUser]}>
         <header id="header">
           <AppNavBar />
@@ -103,7 +101,6 @@ function App() {
         <Footer/>
       </footer>
       </Context.Provider>
-      </LoginContext.Provider>
     </div>
     </>
   );

@@ -227,7 +227,7 @@ app.post("/logout", authenticateToken, (req,res) =>{
 })
   })
 
-app.get('/getUserHistory', authenticateToken, (req,res)=>{
+app.post('/getUserHistory', authenticateToken, (req,res)=>{
   sql.getUsersBookings(req.user.Email).then((result)=>{
     res.json(result);
   })
@@ -300,8 +300,8 @@ app.get('/customer/bookings/:email', function (req, res, next){
 })
 
 //Delete a booking by its id
-app.delete('/delbooking/:id', function (req, res, next){
-  sql.deleteBooking(req.params.id)
+app.delete('/bookings/delete', authenticateToken, function (req, res, next){
+  sql.deleteBooking(req.body.BookingID)
   .then((result)=>{
     res.json(result);
   })

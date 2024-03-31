@@ -4,7 +4,6 @@ import Validation from './validationfiles/LoginValidation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Context from '../components/Context';
-import LoginContext from '../components/LoginContext';
 
 function Login(){
     const [User, setUsers] = useState({
@@ -12,41 +11,8 @@ function Login(){
         PasswordHash:''
     })
 
-    const [ user, setUser ] = useState(null);
+    const [ user, setUser ] = useContext(Context);
 
-
-    
-    const navigate = useNavigate();
-    const[errors, setErrors] = useState({})
-    const handleInput = (event) => {
-        setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
-    }
-    
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const err = Validation(User);
-        setErrors(err);
-        if(err.Email === "" && err.PasswordHash ===""){
-            axios.post('http://localhost:3000/login', User, { withCredentials: true })
-            .then(res=> {
-                if(res.data !== "Fail"){
-                    setUser(res.data, ()=>{
-                        navigate('/');
-                    });
-                    const access = res.data.accessToken;
-                    const refresh = res.data.refreshToken;
-                    const lsemail = res.data.userEmail;
-                    localStorage.setItem("accessToken", access)
-                    localStorage.setItem("refreshToken", refresh)
-                    localStorage.setItem("email", lsemail)
-
-                } else {
-                    alert("Invalid email or password");
-                }         
-            })
-            .catch(err => console.log(err));
-        }
-    }
 
     useEffect(() => {  
         //input localstorage email and accesstoken 
@@ -67,11 +33,43 @@ function Login(){
         });
     },[]);
 
+
+    
+    const navigate = useNavigate();
+
     useEffect(() => {
         if (user) {
           navigate('/');
         }
       }, [user]);
+    const[errors, setErrors] = useState({})
+    const handleInput = (event) => {
+        setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
+    }
+    
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        const err = Validation(User);
+        setErrors(err);
+        if(err.Email === "" && err.PasswordHash ===""){
+            axios.post('http://localhost:3000/login', User, { withCredentials: true })
+            .then(res=> {
+                if(res.data !== "Fail"){
+                    setUser(res.data);
+                    const access = res.data.accessToken;
+                    const refresh = res.data.refreshToken;
+                    const lsemail = res.data.userEmail;
+                    localStorage.setItem("accessToken", access)
+                    localStorage.setItem("refreshToken", refresh)
+                    localStorage.setItem("email", lsemail)
+
+                } else {
+                    alert("Invalid email or password");
+                }         
+            })
+            .catch(err => console.log(err));
+        }
+    }
 
     return(
         <>
