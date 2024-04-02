@@ -8,12 +8,14 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import checkAuthentication from '../pages/validationfiles/authService';
 import Button from 'react-bootstrap/Button';
-
+import Cookies from 'universal-cookie';
 
 
 
 function NavbarComponent() {
   const [ user, setUser ] = useContext(Context);
+
+  const cookies = new Cookies();
 
 
   useEffect(() => {  
@@ -22,12 +24,12 @@ function NavbarComponent() {
       Email: localStorage.getItem('email')
     }, {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem('accessToken')
+        Authorization: "Bearer " + cookies.get('jwt_authorization')
       },
       withCredentials: true
     })
     .then(res => {
-      console.log(res.data);
+      console.log("resdata =", res.data);
       setUser(res.data[0]);
     })
     .catch(error => {
@@ -42,7 +44,7 @@ function NavbarComponent() {
       token: localStorage.getItem('refreshToken')
     }, {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem('accessToken')
+        Authorization: "Bearer " + cookies.get('jwt_authorization')
       },
       withCredentials: true 
     })
@@ -51,6 +53,8 @@ function NavbarComponent() {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('email');
         setUser(null);
+        cookies.remove('jwt_authorization')
+        
       })
       .catch(err => console.log(err));
     } 

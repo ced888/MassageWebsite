@@ -4,6 +4,8 @@ import Validation from './validationfiles/LoginValidation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Context from '../components/Context';
+import Cookies from 'universal-cookie';
+import { jwtDecode } from "jwt-decode";
 
 function Login(){
     const [User, setUsers] = useState({
@@ -11,29 +13,28 @@ function Login(){
         PasswordHash:''
     })
 
+    const cookies = new Cookies();
     const [ user, setUser ] = useContext(Context);
 
 
     useEffect(() => {  
         //input localstorage email and accesstoken 
         axios.post('http://localhost:3000/getUser', {
-          Email: localStorage.getItem('email')
+            Email: localStorage.getItem('email')
         }, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem('accessToken')
-          },
-          withCredentials: true
+            headers: {
+            Authorization: "Bearer " + cookies.get('jwt_authorization')
+        },
+            withCredentials: true
         })
         .then(res => {
-          console.log(res.data);
-          setUser(res.data[0]);
+            console.log("resdata =", res.data);
+            setUser(res.data[0]);
         })
         .catch(error => {
-          console.error("Error:", error);
+            console.error("Error:", error);
         });
     },[]);
-
-
     
     const navigate = useNavigate();
 
@@ -62,6 +63,10 @@ function Login(){
                     localStorage.setItem("accessToken", access)
                     localStorage.setItem("refreshToken", refresh)
                     localStorage.setItem("email", lsemail)
+                    const decoded = jwtDecode(res.data.accessToken)
+
+                    cookies.set("jwt_authorization", access, {
+                    });
 
                 } else {
                     alert("Invalid email or password");

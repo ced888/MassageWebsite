@@ -20,14 +20,17 @@ import Signup from './pages/Signup';
 import Context from './components/Context'; 
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
+//import LoginContext from './components/LoginContext';
+import Cookies from 'universal-cookie';
 
 function App() {
   const [ stripePromise, setStripePromise ] = useState(null);
 
-  //const [ accessToken, setAccessToken ] = useState(null);
+  //const [ accessToken1, setAccessToken ] = useState(null);
   const [ user, setUser ] = useState(null);
 
   const [ booking, setBooking ] = useState({});
+  const cookies = new Cookies();
 
   useEffect(() => {
     fetch("/payment/config").then(async (r) => {
@@ -36,20 +39,20 @@ function App() {
     });
   }, []);
 
-
   useEffect(() => {  
     //input localstorage email and accesstoken 
     axios.post('http://localhost:3000/getUser', {
       Email: localStorage.getItem('email')
     }, {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem('accessToken')
+        Authorization: "Bearer " + cookies.get('jwt_authorization')
       },
       withCredentials: true
     })
     .then(res => {
-      console.log(res.data);
+      console.log("resdata =", res.data);
       setUser(res.data[0]);
+
       //refreshToken
     })
     .catch(error => {
@@ -57,7 +60,7 @@ function App() {
     });
 }, []);
 
-  
+/*
   const refreshToken = async ()=>{
     try{
       const res = await axios.post("/refresh", {token: localStorage.getItem('refreshToken')});
@@ -68,7 +71,7 @@ function App() {
       console.log(err)
     }
   }
-
+*/
 /*
   axios.interceptors.request.use(async () =>{
     let currentDate = new Date();
@@ -81,26 +84,25 @@ function App() {
   return (
     <>
     <div className="App">
-    <Context.Provider value={[user, setUser]}>
-        <header id="header">
-          <AppNavBar />
-        </header>
-            <BrowserRouter>
+        <Context.Provider value={[user, setUser]}>
+          <header id="header">
+            <AppNavBar />
+          </header>
+          <BrowserRouter>
             <Routes>
               <Route path='/' element={<Homepage />}/>
               <Route path="/booking/:massageType/:massageTypeId" element={<BookingPage />} />
               <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
               <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
               <Route path="/bookinghistory" element={<BookingHistory />} />
-
               <Route path="/login" element = {<Login />}/>
               <Route path="/signup" element = {<Signup />}/>
-          </Routes>
-        </BrowserRouter>
-      <footer>
-        <Footer/>
-      </footer>
-      </Context.Provider>
+            </Routes>
+          </BrowserRouter>
+          <footer>
+            <Footer/>
+          </footer>
+        </Context.Provider>
     </div>
     </>
   );

@@ -7,20 +7,23 @@ import { Button, CardActions } from "@mui/material";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+//import LoginContext from "../components/LoginContext";
+import { useContext } from "react";
+import Cookies from 'universal-cookie';
 
 function BookingHistory()
 {
     const [bookingsInfo, setBookingInfos] = useState([])
 
-
     const navigate = useNavigate();
+    const cookies = new Cookies();
 
     useEffect (()=>{
         axios.post('http://localhost:3000/getUserHistory', {
             Email: localStorage.getItem('email')
           }, {
             headers: {
-              Authorization: "Bearer " + localStorage.getItem('accessToken')
+              Authorization: "Bearer " + cookies.get('jwt_authorization')
             },
             withCredentials: true
           })
@@ -48,7 +51,7 @@ function BookingHistory()
               });
               axios.delete('http://localhost:3000/bookings/delete', {
                 headers:{
-                Authorization: "Bearer " + localStorage.getItem('accessToken')
+                Authorization: "Bearer " + cookies.get('jwt_authorization')
                 },
                 data: {
                     BookingID: bookingID
@@ -59,7 +62,7 @@ function BookingHistory()
                     Email: localStorage.getItem('email')
                   }, {
                     headers: {
-                      Authorization: "Bearer " + localStorage.getItem('accessToken')
+                      Authorization: "Bearer " + cookies.get('jwt_authorization')
                     },
                     withCredentials: true
                   })
