@@ -22,6 +22,7 @@ import LoginContext from './components/LoginContext';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 import EmployeeScheduler from './pages/EmployeeScheduler';
+import WeeklySchedulePage from './pages/WeeklySchedulePage';
 
 function App() {
   const [ stripePromise, setStripePromise ] = useState(null);
@@ -96,6 +97,7 @@ function App() {
               <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
               <Route path="/bookinghistory" element={<BookingHistory />} />
               <Route path="/employeeschedule" element={<EmployeeScheduler />} />
+              <Route path="/weeklyschedule" element={<WeeklySchedulePage />} />
               <Route path="/login" element = {<Login />}/>
               <Route path="/signup" element = {<Signup />}/>
           </Routes>

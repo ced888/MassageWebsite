@@ -70,12 +70,17 @@ function NavbarComponent() {
             <Nav.Link href="#about">About</Nav.Link>
             <Nav.Link href="/#services">Services</Nav.Link>
             <Nav.Link href="/contacts">Contacts</Nav.Link>
-
+            {user &&
+              <>
+              <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link> 
+              <Nav.Link className='d-inline me-auto' href="/weeklyschedule">Weekly Schedule</Nav.Link> 
+              <Nav.Link className='d-inline me-auto' href="/employeescheduler">Employee Schedule</Nav.Link> 
+              </>
+            }
           </Nav>
           <div>
             {user ? (
               <div style={{ textAlign: 'right' }}>
-                <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link>
                 <Nav.Item className='d-inline'> Logged In </Nav.Item>
                 <a href="/">
                 <button type="button" className="btn btn-outline-secondary" onClick={handleLogout}>Logout  </button> 

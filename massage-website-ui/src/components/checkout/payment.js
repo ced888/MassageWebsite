@@ -6,11 +6,9 @@ import CheckoutForm from './checkoutForm'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Context from "../Context";
 import { useNavigate } from 'react-router-dom';
-
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { Button, TextField } from "@mui/material";
 import dayjs from 'dayjs';
@@ -49,6 +47,7 @@ function Payment(props) {
       console.log(res);
       if(res.data !== "")
         setPrice(res.data[0][0]);
+        booking.Price = res.data[0][0].Price;
     })
   }, []);
 
@@ -81,8 +80,12 @@ function Payment(props) {
     var startDateTime = booking.Date.format('YYYY-MM-DD HH:mm:ss');
     var EndDateTime = booking.Date.add(booking.Duration,'minute').format('YYYY-MM-DD HH:mm:ss');
 
+    let custID = localStorage.getItem('customerid');
+      if(custID === null)
+        custID = 49;
+
     var bookingInput = ({
-      CustomerID: 38,
+      CustomerID: custID,
       EmployeeID: selectedPrac.EmployeeID,
       MassageTypeID: booking.MassageTypeId,
       DateCreated: currentDate,
@@ -92,14 +95,13 @@ function Payment(props) {
       PriceTotal: bookingPrice.Price,
       Status: 'upcoming',
       IsPaid: 0
-    }
-    )
+    })
     console.log(bookingInput)
 
     axios.post('http://localhost:3000/createbooking', bookingInput)
     .then(res=> {
       console.log(res);
-      //navigate('/completion');
+      navigate('/completion');
     })
     .catch(err => console.log(err));
   }
@@ -136,7 +138,7 @@ function Payment(props) {
         </AccordionSummary>
         <AccordionDetails>
           Please enter your email <br></br>
-          <TextField id="outlined-basic" label="Email" variant="outlined" />
+          <TextField id="outlined-basic" label="Email" variant="outlined" value={localStorage.getItem('email')}/>
           <Button variant="contained" onClick={handleSubmit}> Confirm </Button>
         </AccordionDetails>
       </Accordion>
