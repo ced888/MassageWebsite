@@ -85,7 +85,8 @@ function BookingHistory()
     
     return(
     <>
-        
+        <h1>Booking History</h1>
+
         {bookingsInfo.map((bookingInfo) => (
             <Card key={bookingInfo.BookingID} sx={{ display: "flex", width:"50%", textAlign:"left", marginLeft:"auto", marginRight:"auto", marginTop: "2em", marginBottom:"2em" }}>
             <CardMedia

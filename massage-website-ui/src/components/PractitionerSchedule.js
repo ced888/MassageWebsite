@@ -61,7 +61,7 @@ function Calendar(EmployeeID) {
         //image: `../assets/img/services/services-${services}.jpg`,
         style: "border-radius: 50%; border: 2px solid #fff; overflow: hidden;",
       });
-      let event_color = { 7: "#6aa84f", 8: "#f1c232", 9: "#cc4125" };
+      let event_color = { 7: "#6aa84f", 8: "#f1c232", 9: "#cc4125", 10: "#FA9EBC" };
       args.data.backColor = event_color[services];
     },
   });

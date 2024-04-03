@@ -67,6 +67,9 @@ function EmployeeScheduler() {
   // const daysOfWeek = Array.from({ length: 7 }).map((_, i) => format(addDays(startOfCurrentWeek, i), 'yyyy-MM-dd'));
 
   return (
+    <>
+    <h1>Practitioner Scheduler</h1> <br></br>
+    
     <Paper style={{ padding: '20px', marginTop: '20px' }}>
       <div style={{ width:'40%' }}>
         <FormControl fullWidth style={{ marginBottom: '10px' }}>
@@ -153,6 +156,7 @@ function EmployeeScheduler() {
         <Button onClick={() => handleWeekChange('next')} variant="outlined">Next Week</Button>
       </div>
     </Paper>
+    </>
   );
 };
 

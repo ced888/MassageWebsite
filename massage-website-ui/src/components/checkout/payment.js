@@ -80,7 +80,7 @@ function Payment(props) {
     var startDateTime = booking.Date.format('YYYY-MM-DD HH:mm:ss');
     var EndDateTime = booking.Date.add(booking.Duration,'minute').format('YYYY-MM-DD HH:mm:ss');
 
-    let custID = localStorage.getItem('customerid');
+    let custID = booking.CustomerId;
       if(custID === null)
         custID = 49;
 
