@@ -49,6 +49,7 @@ function BookingPage(){
     
     function handleDateChange(dateObject){
         setDate(dateObject);
+        setPrac(undefined);
     };
 
     const [showPrac, setShowPrac] = useState(false); 
@@ -56,6 +57,8 @@ function BookingPage(){
     function handleHourSelect(selectedHour){
         // Handle the selected hour
         setTime(selectedHour);
+        setPrac(undefined);
+            
         var time = selectedHour.split(":");
         setDate(selectedDate.set('hour', time[0]).set('minute', time[1]).set('second', 0));
         console.log(prac);
@@ -72,6 +75,7 @@ function BookingPage(){
     let PracComp = null;
     if(showPrac){
         PracComp = <>
+        <br></br>
         Which Practitioner would you prefer?
         <PractitionerComponent onChange={handlePracSelect} practitioners={prac} />
         </>;
@@ -87,13 +91,15 @@ function BookingPage(){
     
     const navigate = useNavigate();
     function HandleSubmit(){
+        
         setBookingData({
             MassageType:params.massageType,
             MassageTypeId:params.massageTypeId, 
             Date:selectedDate, 
             Time:selectedTime, 
             Duration:selectedDuration,
-            Practitioner: selectedPrac
+            Practitioner: selectedPrac,
+            Price:null,
         });
         console.log(booking);
         navigate('/payment');
@@ -137,7 +143,7 @@ function BookingPage(){
             </div>
             
             
-            <Button variant="contained" disabled={selectedTime === null && selectedPrac === null} onClick={HandleSubmit}> Book Now </Button>
+            <Button variant="contained" disabled={selectedTime === undefined || selectedPrac === undefined} onClick={HandleSubmit}> Book Now </Button>
         </div>
     );
 }

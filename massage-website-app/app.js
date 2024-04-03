@@ -88,6 +88,12 @@ app.get('/bookings/:id', function (req,res,next){
   .catch(next);
 })
 
+app.get('/bookingsbyemployee/:EmployeeID', function (req,res,next){
+  sql.getBookingByPractitioner(req.params.EmployeeID)
+  .then(user=> res.json(user))
+  .catch(next);
+})
+
 //Create booking
 //Need booking details as input
 app.post('/createbooking', function (req, res, next) {
