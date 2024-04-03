@@ -20,6 +20,8 @@ import Signup from './pages/Signup';
 import Context from './components/Context'; 
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
+import EmployeeScheduler from './pages/EmployeeScheduler';
+import WeeklySchedulePage from './pages/WeeklySchedulePage';
 //import LoginContext from './components/LoginContext';
 import Cookies from 'universal-cookie';
 
@@ -96,6 +98,8 @@ function App() {
               <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
               <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
               <Route path="/bookinghistory" element={<BookingHistory />} />
+              <Route path="/employeeschedule" element={<EmployeeScheduler />} />
+              <Route path="/weeklyschedule" element={<WeeklySchedulePage />} />
               <Route path="/login" element = {<Login />}/>
               <Route path="/signup" element = {<Signup />}/>
             </Routes>

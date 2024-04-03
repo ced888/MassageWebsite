@@ -263,6 +263,21 @@ async function getBooking(BookingID){
         console.log("error:" + error);
     }
 }
+async function getBookingByPractitioner(EmployeeID)
+{
+    try{
+        let pool = await sql.connect(config);
+        let res = await pool.request()
+        .input('inputID', sql.Int, EmployeeID)
+        .query(`
+        SELECT BookingID AS 'id', MassageType AS 'text', StartDateTime AS 'start', EndDateTime as 'end' 
+        FROM BookingDB b, CustomerDB c, MassageTypeDB m 
+        WHERE EmployeeID = @inputID AND b.CustomerID = c.CustomerID AND b.MassageTypeID = m.MassageTypeID`);
+        return res.recordset;
+    } catch(error){
+        console.log("error:" + error);
+    }
+}
 
 async function getUsersBookings(Email){
     try{
@@ -479,6 +494,7 @@ module.exports = {
     getCustomerBookings:getCustomerBookings,
     getBooking:getBooking,
     getUsersBookings:getUsersBookings,
+    getBookingByPractitioner:getBookingByPractitioner,
 
     getMassageType:getMassageType,
     getMassagePrice:getMassagePrice,

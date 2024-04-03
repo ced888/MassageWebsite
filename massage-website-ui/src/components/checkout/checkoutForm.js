@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import './checkout.css';
 import {
     PaymentElement,
@@ -6,13 +6,47 @@ import {
   } from '@stripe/react-stripe-js'
   import {useState} from 'react'
   import {useStripe, useElements} from '@stripe/react-stripe-js';
+import Context from "../Context";
+import dayjs from "dayjs";
+import axios from "axios";
   
   export default function CheckoutForm() {
     const stripe = useStripe();
     const elements = useElements();
     const [message, setMessage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-  
+
+    const [booking, setBookingData ] = useContext(Context);
+
+    function createBookingPost(){
+      //TODO: Validate fields
+      
+      var currentDate = dayjs(Date()).format('YYYY-MM-DD HH:mm:ss');
+      var startDateTime = booking.Date.format('YYYY-MM-DD HH:mm:ss');
+      var EndDateTime = booking.Date.add(booking.Duration,'minute').format('YYYY-MM-DD HH:mm:ss');
+      
+      let custID = null;
+      if(custID === null)
+        custID = 49;
+
+      var bookingInput = ({
+        CustomerID: custID,
+        EmployeeID: booking.Practitioner,
+        MassageTypeID: booking.MassageTypeId,
+        DateCreated: currentDate,
+        DurationInMins: booking.Duration,
+        StartDateTime: startDateTime,
+        EndDateTime: EndDateTime,
+        PriceTotal: booking.Price,
+        Status: 'upcoming',
+        IsPaid: 1
+      })
+      console.log(bookingInput)
+
+      axios.post('http://localhost:3000/createbooking', bookingInput)
+      .catch(err => console.log(err));
+    }
+
     const handleSubmit = async (e) => {
       e.preventDefault();
   
@@ -21,7 +55,7 @@ import {
         // Make sure to disable form submission until Stripe.js has loaded.
         return;
       }
-  
+      
       setIsLoading(true);
   
       const { error } = await stripe.confirmPayment({
@@ -30,7 +64,11 @@ import {
           // Make sure to change this to your payment completion page
           return_url: `${window.location.origin}/completion`,
         },
-      });
+      }).then(()=>{
+        createBookingPost();
+      })
+
+      
   
       // This point will only be reached if there is an immediate error when
       // confirming the payment. Otherwise, your customer will be redirected to
