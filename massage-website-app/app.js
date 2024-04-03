@@ -162,7 +162,7 @@ function authenticateToken(req,res,next){
 }
 
 function generateAccessToken(user){
-  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:'6h'})
+  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:'2h'})
 }
 
 function generateRefreshToken(user){

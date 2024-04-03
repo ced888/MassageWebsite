@@ -60,18 +60,19 @@ function App() {
     });
 }, []);
 
-/*
+
   const refreshToken = async ()=>{
     try{
-      const res = await axios.post("/refresh", {token: localStorage.getItem('refreshToken')});
-      localStorage.setItem("accessToken", res.data.accessToken)
-      localStorage.setItem("refreshToken", res.data.refreshToken)
-      return res.data
+      const res = await axios.post("/refresh", {token: cookies.get('refresh_token')}, { withCredentials: true });
+      cookies.set("jwt_authorization", res.data.accessToken, {
+      });
+      cookies.set("refresh_token", res.data.refreshToken, {
+      });
     }catch(err){
       console.log(err)
     }
   }
-*/
+
 /*
   axios.interceptors.request.use(async () =>{
     let currentDate = new Date();

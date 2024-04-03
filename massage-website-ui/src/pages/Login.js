@@ -60,12 +60,15 @@ function Login(){
                     const access = res.data.accessToken;
                     const refresh = res.data.refreshToken;
                     const lsemail = res.data.userEmail;
-                    localStorage.setItem("accessToken", access)
-                    localStorage.setItem("refreshToken", refresh)
+                    //localStorage.setItem("accessToken", access)
+                    //localStorage.setItem("refreshToken", refresh)
                     localStorage.setItem("email", lsemail)
-                    const decoded = jwtDecode(res.data.accessToken)
+                    //const decoded = jwtDecode(res.data.accessToken)
 
                     cookies.set("jwt_authorization", access, {
+                    });
+
+                    cookies.set("refresh_token", refresh, {
                     });
 
                 } else {
