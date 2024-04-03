@@ -168,7 +168,7 @@ function authenticateToken(req,res,next){
 }
 
 function generateAccessToken(user){
-  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:'6h'})
+  return jwt.sign({ UserID:user.UserID, Email:user.Email, IsAdmin:user.IsAdmin }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:'2h'})
 }
 
 function generateRefreshToken(user){
@@ -233,7 +233,7 @@ app.post("/logout", authenticateToken, (req,res) =>{
 })
   })
 
-app.get('/getUserHistory', authenticateToken, (req,res)=>{
+app.post('/getUserHistory', authenticateToken, (req,res)=>{
   sql.getUsersBookings(req.user.Email).then((result)=>{
     res.json(result);
   })
@@ -306,8 +306,8 @@ app.get('/customer/bookings/:email', function (req, res, next){
 })
 
 //Delete a booking by its id
-app.delete('/delbooking/:id', function (req, res, next){
-  sql.deleteBooking(req.params.id)
+app.delete('/bookings/delete', authenticateToken, function (req, res, next){
+  sql.deleteBooking(req.body.BookingID)
   .then((result)=>{
     res.json(result);
   })

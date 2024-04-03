@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { Validation } from './validationfiles/SignupValidation';
@@ -9,7 +9,7 @@ import Context from '../components/Context';
 
 function Signup() {
 
-    const [ user, setUser ] = useState(null);
+    const [ user, setUser ] = useContext(Context);
 
     const [Customer, setCustomer] = useState({
         FirstName: '',

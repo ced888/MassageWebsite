@@ -8,15 +8,34 @@ import axios from 'axios';
 import { useEffect } from 'react';
 import checkAuthentication from '../pages/validationfiles/authService';
 import Button from 'react-bootstrap/Button';
-import LoginContext from './LoginContext';
-
+import Cookies from 'universal-cookie';
 
 
 
 function NavbarComponent() {
-  const [user,setUser] = useState(null);
+  const [ user, setUser ] = useContext(Context);
+
+  const cookies = new Cookies();
 
 
+  useEffect(() => {  
+    //input localstorage email and accesstoken 
+    axios.post('http://localhost:3000/getUser', {
+      Email: localStorage.getItem('email')
+    }, {
+      headers: {
+        Authorization: "Bearer " + cookies.get('jwt_authorization')
+      },
+      withCredentials: true
+    })
+    .then(res => {
+      console.log("resdata =", res.data);
+      setUser(res.data[0]);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+}, []);
   
 
   const handleLogout = (event) => {
@@ -25,7 +44,7 @@ function NavbarComponent() {
       token: localStorage.getItem('refreshToken')
     }, {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem('accessToken')
+        Authorization: "Bearer " + cookies.get('jwt_authorization')
       },
       withCredentials: true 
     })
@@ -34,29 +53,14 @@ function NavbarComponent() {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('email');
         setUser(null);
+        cookies.remove('jwt_authorization')
+        
       })
       .catch(err => console.log(err));
     } 
 
   
-    useEffect(() => {  
-        //input localstorage email and accesstoken 
-        axios.post('http://localhost:3000/getUser', {
-          Email: localStorage.getItem('email')
-        }, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem('accessToken')
-          },
-          withCredentials: true
-        })
-        .then(res => {
-          console.log(res.data);
-          setUser(res.data[0]);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
-    }, []);
+
 
   return (
     //TODO: Add massage icon img

@@ -9,6 +9,7 @@ npm install --save stripe
 npm install bcrypt
 npm install express-session
 npm install mssql-session-store
+npm i jsonwebtoken
 
 ## Dependencies for UI
 
@@ -21,5 +22,6 @@ npm install bootstrap
 npm install axios
 npm i jwt-decode
 npm install @mui/icons-material
+npm i sweetalert2
 npm install date-fns
 npm install @daypilot/daypilot-lite-react

@@ -4,7 +4,8 @@ import Validation from './validationfiles/LoginValidation';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Context from '../components/Context';
-import LoginContext from '../components/LoginContext';
+import Cookies from 'universal-cookie';
+import { jwtDecode } from "jwt-decode";
 
 function Login(){
     const [User, setUsers] = useState({
@@ -12,11 +13,36 @@ function Login(){
         PasswordHash:''
     })
 
-    const [ user, setUser ] = useState(null);
+    const cookies = new Cookies();
+    const [ user, setUser ] = useContext(Context);
 
 
+    useEffect(() => {  
+        //input localstorage email and accesstoken 
+        axios.post('http://localhost:3000/getUser', {
+            Email: localStorage.getItem('email')
+        }, {
+            headers: {
+            Authorization: "Bearer " + cookies.get('jwt_authorization')
+        },
+            withCredentials: true
+        })
+        .then(res => {
+            console.log("resdata =", res.data);
+            setUser(res.data[0]);
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+    },[]);
     
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (user) {
+          navigate('/');
+        }
+      }, [user]);
     const[errors, setErrors] = useState({})
     const handleInput = (event) => {
         setUsers(prev => ({...prev, [event.target.name]: event.target.value}))
@@ -30,15 +56,20 @@ function Login(){
             axios.post('http://localhost:3000/login', User, { withCredentials: true })
             .then(res=> {
                 if(res.data !== "Fail"){
-                    setUser(res.data, ()=>{
-                        navigate('/');
-                    });
+                    setUser(res.data);
                     const access = res.data.accessToken;
                     const refresh = res.data.refreshToken;
                     const lsemail = res.data.userEmail;
-                    localStorage.setItem("accessToken", access)
-                    localStorage.setItem("refreshToken", refresh)
+                    //localStorage.setItem("accessToken", access)
+                    //localStorage.setItem("refreshToken", refresh)
                     localStorage.setItem("email", lsemail)
+                    //const decoded = jwtDecode(res.data.accessToken)
+
+                    cookies.set("jwt_authorization", access, {
+                    });
+
+                    cookies.set("refresh_token", refresh, {
+                    });
 
                 } else {
                     alert("Invalid email or password");
@@ -47,31 +78,6 @@ function Login(){
             .catch(err => console.log(err));
         }
     }
-
-    useEffect(() => {  
-        //input localstorage email and accesstoken 
-        axios.post('http://localhost:3000/getUser', {
-          Email: localStorage.getItem('email')
-        }, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem('accessToken')
-          },
-          withCredentials: true
-        })
-        .then(res => {
-          console.log(res.data);
-          setUser(res.data[0]);
-        })
-        .catch(error => {
-          console.error("Error:", error);
-        });
-    },[]);
-
-    useEffect(() => {
-        if (user) {
-          navigate('/');
-        }
-      }, [user]);
 
     return(
         <>
