@@ -27,6 +27,7 @@ function WeeklySchedulePage() {
 
   return (
     <div>
+      <h1>Weekly Practitioner Schedule</h1> <br></br>
       <PractitionerSchedule 
         employeeID = {user.EmployeeID}/>
     </div>

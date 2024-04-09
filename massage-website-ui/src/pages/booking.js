@@ -8,6 +8,8 @@ import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, InputLabel, MenuItem, Select } from "@mui/material";
 import Context from "../components/Context";
+import Cookies from "universal-cookie";
+import axios from "axios";
 
 
 function BookingPage(){
@@ -21,6 +23,27 @@ function BookingPage(){
     const [prac, setPracs] = useState([]);
 
     const [booking, setBookingData ] = useContext(Context);
+
+    const [ user, setUser ] = useState(Context);
+    const cookies = new Cookies();
+    useEffect(() => {  
+        //input localstorage email and accesstoken 
+        axios.post('http://localhost:3000/getUser', {
+          Email: localStorage.getItem('email')
+        }, {
+          headers: {
+            Authorization: "Bearer " + cookies.get('jwt_authorization')
+          },
+          withCredentials: true
+        })
+        .then(res => {
+          console.log("resdata =", res.data);
+          setUser(res.data[0]);
+        })
+        .catch(error => {
+          console.error("Error:", error);
+        });
+    }, []);
 
     useEffect(() => {
         let sel_date = selectedDate.format('YYYY-MM-DD');
@@ -93,6 +116,7 @@ function BookingPage(){
     function HandleSubmit(){
         
         setBookingData({
+            CustomerId: user.CustomerID,
             MassageType:params.massageType,
             MassageTypeId:params.massageTypeId, 
             Date:selectedDate, 
