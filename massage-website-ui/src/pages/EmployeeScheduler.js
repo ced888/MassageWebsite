@@ -10,7 +10,22 @@ let shiftIdCounter = 2;
 function EmployeeScheduler() {
   const [employees, setEmployees] = useState([]);
   const [shifts, setShifts] = useState([
-    { id: 1, employeeId: 1, date: '2023-04-03', start: '09:00', end: '17:00' },
+    {employeeId: 7, date: '2024-04-08', start: '09:00', end: '17:00', id: 3},
+    {employeeId: 7, date: '2024-04-09', start: '09:00', end: '17:00', id: 4},
+    {employeeId: 7, date: '2024-04-10', start: '09:00', end: '17:00', id: 5},
+    {employeeId: 7, date: '2024-04-11', start: '09:00', end: '17:00', id: 6},
+    {employeeId: 7, date: '2024-04-12', start: '09:00', end: '17:00', id: 7},
+    {employeeId: 8, date: '2024-04-08', start: '12:00', end: '17:00', id: 8},
+    {employeeId: 8, date: '2024-04-09', start: '12:00', end: '17:00', id: 9},
+    {employeeId: 8, date: '2024-04-10', start: '12:00', end: '17:00', id: 10},
+    {employeeId: 8, date: '2024-04-12', start: '12:00', end: '17:00', id: 11},
+    {employeeId: 9, date: '2024-04-09', start: '09:00', end: '13:00', id: 12},
+    {employeeId: 9, date: '2024-04-10', start: '09:00', end: '13:00', id: 13},
+    {employeeId: 9, date: '2024-04-11', start: '09:00', end: '13:00', id: 14},
+    // { id: 1, employeeId: 7, date: '2023-04-09', start: '09:00', end: '17:00' },
+    // { id: 2, employeeId: 7, date: '2023-04-10', start: '09:00', end: '17:00' },
+    // { id: 3, employeeId: 7, date: '2023-04-11', start: '09:00', end: '17:00' },
+    // { id: 4, employeeId: 7, date: '2023-04-12', start: '09:00', end: '17:00' },
   ]);
   const [currentWeek, setCurrentWeek] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   
