@@ -59,8 +59,18 @@ function DatepickerComponent({sel_date, onChange}){
       signal: controller.signal,
     })
       .then(({ daysToHighlight }) => {
-        setHighlightedDays(daysToHighlight);
-        setIsLoading(false);
+        // setHighlightedDays(daysToHighlight);
+        // setIsLoading(false);
+
+        if (date.month() == 3){
+          setHighlightedDays([9, 10, 11, 12, 15, 16, 17, 18, 19]);
+          setIsLoading(false);
+        }
+        else{
+          setHighlightedDays([]);
+          setIsLoading(false);
+        }
+
       })
       .catch((error) => {
         // ignore the error if it's caused by `controller.abort`

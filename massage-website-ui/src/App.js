@@ -98,7 +98,7 @@ function App() {
               <Route path="/payment" element={<Payment stripePromise={stripePromise} />} />
               <Route path="/completion" element={<Completion stripePromise={stripePromise} />} />
               <Route path="/bookinghistory" element={<BookingHistory />} />
-              <Route path="/employeeschedule" element={<EmployeeScheduler />} />
+              <Route path="/employeescheduler" element={<EmployeeScheduler />} />
               <Route path="/weeklyschedule" element={<WeeklySchedulePage />} />
               <Route path="/login" element = {<Login />}/>
               <Route path="/signup" element = {<Signup />}/>
