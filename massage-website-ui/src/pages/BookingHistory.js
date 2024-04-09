@@ -10,10 +10,13 @@ import Swal from 'sweetalert2';
 //import LoginContext from "../components/LoginContext";
 import { useContext } from "react";
 import Cookies from 'universal-cookie';
+import Box from '@mui/material/Box';
+import Rating from '@mui/material/Rating';
 
 function BookingHistory()
 {
-    const [bookingsInfo, setBookingInfos] = useState([])
+    const [bookingsInfo, setBookingInfos] = useState([]);
+    const [rating, setRating] = useState(null);
 
     const navigate = useNavigate();
     const cookies = new Cookies();
@@ -106,7 +109,32 @@ function BookingHistory()
                 </Typography>
             </CardContent>
             { bookingInfo.Status === 'finished' ? 
-            (<h1></h1>): (<CardActions sx={{marginLeft:"auto"}}>
+            (
+              <div>{bookingInfo.Rating === null ? (<Box
+              sx={{
+                '& > legend': { mt: 2 },
+                textAlign:'right',
+              }}
+            >
+            <Typography component="legend">Controlled</Typography>
+            <Rating
+              name="simple-controlled"
+              value={Rating}
+              onChange={(event, newRating) => {
+              setRating(newRating);
+            }}/>
+            </Box>) :
+                (<Box
+              sx={{
+                '& > legend': { mt: 2 },
+                textAlign:'right',
+              }}
+            >
+             <Typography component="legend">Read only</Typography>
+              <Rating name="read-only" value={bookingInfo.Rating} readOnly />
+            </Box>)
+              }</div>
+              ): (<CardActions sx={{marginLeft:"auto"}}>  
             <Button size="small" color="primary" onClick={() => handleCancel(bookingInfo.BookingID)}>
             Cancel
             </Button>
