@@ -26,7 +26,7 @@ import axios from "axios";
       var EndDateTime = booking.Date.add(booking.Duration,'minute').format('YYYY-MM-DD HH:mm:ss');
       
       let custID = booking.CustomerId;
-      if(custID === null)
+      if(custID === null || custID === undefined)
         custID = 49;
 
       var bookingInput = ({
