@@ -84,32 +84,7 @@ function BookingHistory()
           });
         }
         
-    
-    
-    return(
-    <>
-        
-        {bookingsInfo.map((bookingInfo) => (
-            <Card key={bookingInfo.BookingID} sx={{ display: "flex", width:"50%", textAlign:"left", marginLeft:"auto", marginRight:"auto", marginTop: "2em", marginBottom:"2em" }}>
-            <CardMedia
-                component="img"
-                sx={{ width: 151, display: "flex", flexDirection: "column" }}
-                image={require(`../assets/img/services/services-${bookingInfo.MassageTypeID}.jpg`)}
-                alt="Live from space album cover"
-            />
-            <CardContent sx={{ display: "flex", flexDirection: "column" }}>
-                <Typography gutterBottom variant="h5" component="div">
-                {bookingInfo.MassageType}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" component="div">
-                Practitioner: {bookingInfo.PFirstName} {bookingInfo.PLastName}                           <br></br>
-                Total Price: ${bookingInfo.PriceTotal}                                                   <br></br>
-                Appointment Date: {bookingInfo.StartDateTime.slice(0,-8).split("T").join(" Time:")}      <br></br>
-                Status: {bookingInfo.Status}                                                             <br></br>
-                </Typography>
-            </CardContent>
-            { bookingInfo.Status === 'finished' ? 
-            {/*
+    /* add after finished ?
             (
               <div>{bookingInfo.Rating === null ? (<Box
               sx={{
@@ -135,7 +110,32 @@ function BookingHistory()
               <Rating name="read-only" value={bookingInfo.Rating} readOnly />
             </Box>)
               }</div>
-              )*/}(<h1></h1>): (<CardActions sx={{marginLeft:"auto"}}>  
+              )*/
+    
+    return(
+    <>
+        
+        {bookingsInfo.map((bookingInfo) => (
+            <Card key={bookingInfo.BookingID} sx={{ display: "flex", width:"50%", textAlign:"left", marginLeft:"auto", marginRight:"auto", marginTop: "2em", marginBottom:"2em" }}>
+            <CardMedia
+                component="img"
+                sx={{ width: 151, display: "flex", flexDirection: "column" }}
+                image={require(`../assets/img/services/services-${bookingInfo.MassageTypeID}.jpg`)}
+                alt="Live from space album cover"
+            />
+            <CardContent sx={{ display: "flex", flexDirection: "column" }}>
+                <Typography gutterBottom variant="h5" component="div">
+                {bookingInfo.MassageType}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" component="div">
+                Practitioner: {bookingInfo.PFirstName} {bookingInfo.PLastName}                           <br></br>
+                Total Price: ${bookingInfo.PriceTotal}                                                   <br></br>
+                Appointment Date: {bookingInfo.StartDateTime.slice(0,-8).split("T").join(" Time:")}      <br></br>
+                Status: {bookingInfo.Status}                                                             <br></br>
+                </Typography>
+            </CardContent>
+            { bookingInfo.Status === 'finished' ? 
+            (<h1></h1>): (<CardActions sx={{marginLeft:"auto"}}>  
             <Button size="small" color="primary" onClick={() => handleCancel(bookingInfo.BookingID)}>
             Cancel
             </Button>
