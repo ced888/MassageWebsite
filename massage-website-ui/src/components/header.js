@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import NavLink from 'react-router-dom';
+import {NavLink, useNavigate} from 'react-router-dom';
 import Context from './Context';
 import axios from 'axios';
 import { useEffect } from 'react';
@@ -16,7 +16,7 @@ function NavbarComponent() {
   const [ user, setUser ] = useContext(Context);
 
   const cookies = new Cookies();
-
+  const navigate = new useNavigate();
 
   useEffect(() => {  
     //input localstorage email and accesstoken 
@@ -54,7 +54,7 @@ function NavbarComponent() {
         localStorage.removeItem('email');
         setUser(null);
         cookies.remove('jwt_authorization')
-        
+        navigate('/');
       })
       .catch(err => console.log(err));
     } 
@@ -74,18 +74,22 @@ function NavbarComponent() {
             <Nav.Link href="#about">About</Nav.Link>
             <Nav.Link href="/#services">Services</Nav.Link>
             <Nav.Link href="/contacts">Contacts</Nav.Link>
-            {user &&
+            {user ? (
               <>
-              <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link> 
+              <Nav.Link className='d-inline me-auto' href="/bookinghistory">Booking History</Nav.Link>  
+              </>
+            ):<></> }
+            {user ? ( user.EmployeeID && 
+              <>
               <Nav.Link className='d-inline me-auto' href="/weeklyschedule">Weekly Schedule</Nav.Link> 
               <Nav.Link className='d-inline me-auto' href="/employeescheduler">Employee Schedule</Nav.Link> 
               </>
-            }
+            ):<></>}
           </Nav>
           <div>
             {user ? (
               <div style={{ textAlign: 'right' }}>
-                <Nav.Item className='d-inline'> Logged In </Nav.Item>
+                <Nav.Item className='d-inline'> Hello, {user.FirstName}  </Nav.Item>
                 <a href="/">
                 <button type="button" className="btn btn-outline-secondary" onClick={handleLogout}>Logout  </button> 
                 </a>
