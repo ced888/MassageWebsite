@@ -75,7 +75,8 @@ function Completion(props) {
   return (
     <>
       <h1>Thank you!</h1>
-      <a href="/">home</a>
+      <h2>Your Booking has been completed, you can check it in the booking history.</h2>
+      <a href="/bookinghistory">Booking History</a>
       <div id="messages" role="alert" style={messageBody ? {display: 'block'} : {}}>{messageBody}</div>
     </>
   );

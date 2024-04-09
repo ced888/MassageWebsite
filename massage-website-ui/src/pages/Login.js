@@ -34,7 +34,7 @@ function Login(){
         .catch(error => {
             console.error("Error:", error);
         });
-    },[]);
+    },[user]);
     
     const navigate = useNavigate();
 

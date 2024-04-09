@@ -88,10 +88,10 @@ function App() {
     <>
     <div className="App">
         <Context.Provider value={[user, setUser]}>
-          <header id="header">
-            <AppNavBar />
-          </header>
-          <BrowserRouter>
+        <BrowserRouter>
+              <header id="header">
+                <AppNavBar />
+              </header>
             <Routes>
               <Route path='/' element={<Homepage />}/>
               <Route path="/booking/:massageType/:massageTypeId" element={<BookingPage />} />
