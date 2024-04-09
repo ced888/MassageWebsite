@@ -282,9 +282,16 @@ async function getBookingByPractitioner(EmployeeID)
 async function getUsersBookings(Email){
     try{
         let pool = await sql.connect(config);
+        /*
         let res = await pool.request()
         .input('inputEmail', sql.NVarChar, Email)
         .query(`Select BookingID ,b.CustomerID ,b.EmployeeID ,b.MassageTypeID, mt.MassageType, e.FirstName as 'PFirstName', e.LastName as 'PLastName', DateCreated,DurationInMins,StartDateTime,EndDateTime,PriceTotal,Status,IsPaid,Rating
+        from BookingDB b, CustomerDB c, EmployeeDB e, MassageTypeDB mt, UserDB u
+        WHERE b.CustomerID = c.CustomerID AND b.EmployeeID = e.EmployeeID AND b.MassageTypeID = mt.MassageTypeID AND u.UserID = c.UserID AND c.Email = @inputEmail`);
+        */
+        let res = await pool.request()
+        .input('inputEmail', sql.NVarChar, Email)
+        .query(`Select BookingID ,b.CustomerID ,b.EmployeeID ,b.MassageTypeID, mt.MassageType, e.FirstName as 'PFirstName', e.LastName as 'PLastName', DateCreated,DurationInMins,StartDateTime,EndDateTime,PriceTotal,Status,IsPaid
         from BookingDB b, CustomerDB c, EmployeeDB e, MassageTypeDB mt, UserDB u
         WHERE b.CustomerID = c.CustomerID AND b.EmployeeID = e.EmployeeID AND b.MassageTypeID = mt.MassageTypeID AND u.UserID = c.UserID AND c.Email = @inputEmail`);
         return res.recordset;

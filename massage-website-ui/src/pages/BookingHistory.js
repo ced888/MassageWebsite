@@ -88,8 +88,7 @@ function BookingHistory()
     
     return(
     <>
-        <h1>Booking History</h1>
-
+        
         {bookingsInfo.map((bookingInfo) => (
             <Card key={bookingInfo.BookingID} sx={{ display: "flex", width:"50%", textAlign:"left", marginLeft:"auto", marginRight:"auto", marginTop: "2em", marginBottom:"2em" }}>
             <CardMedia
@@ -110,6 +109,7 @@ function BookingHistory()
                 </Typography>
             </CardContent>
             { bookingInfo.Status === 'finished' ? 
+            {/*
             (
               <div>{bookingInfo.Rating === null ? (<Box
               sx={{
@@ -135,7 +135,7 @@ function BookingHistory()
               <Rating name="read-only" value={bookingInfo.Rating} readOnly />
             </Box>)
               }</div>
-              ): (<CardActions sx={{marginLeft:"auto"}}>  
+              )*/}(<h1></h1>): (<CardActions sx={{marginLeft:"auto"}}>  
             <Button size="small" color="primary" onClick={() => handleCancel(bookingInfo.BookingID)}>
             Cancel
             </Button>
